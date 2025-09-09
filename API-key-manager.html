@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure API Key Manager</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200;
+        }
+
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 transition-all duration-300">
+        <h1 class="text-3xl font-bold text-center mb-2">API Key Manager</h1>
+        <p class="text-center text-sm text-gray-500 mb-6">Securely store and retrieve your API keys.</p>
+
+        <!-- User ID Display -->
+        <div class="flex flex-col items-center mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Your Unique ID (for access)</span>
+            <span id="userIdDisplay" class="font-mono text-xs text-gray-600 dark:text-gray-300 break-all mt-1">Authenticating...</span>
+        </div>
+
+        <!-- Add Key Form -->
+        <form id="keyForm" class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="serviceName" placeholder="Service Name (e.g., OpenAI, Stripe)" required
+                    class="w-full p-3 rounded-md bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+                <input type="text" id="apiKey" placeholder="API Key" required
+                    class="w-full p-3 rounded-md bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+            </div>
+            <textarea id="description" placeholder="Description (optional)" rows="2"
+                class="w-full p-3 rounded-md bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 mb-4"></textarea>
+            <button type="submit"
+                class="w-full bg-indigo-600 text-white p-3 rounded-md font-semibold hover:bg-indigo-700 transition-colors duration-200">Add Key</button>
+        </form>
+
+        <!-- Key List -->
+        <div id="keyList" class="space-y-4">
+            <!-- Key items will be injected here by JavaScript -->
+        </div>
+
+        <!-- Modal for Edit/Delete Confirmation -->
+        <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="modalTitle" class="text-xl font-semibold"></h3>
+                    <button class="text-gray-400 hover:text-gray-600" id="closeModal">&times;</button>
+                </div>
+                <p id="modalMessage" class="mb-4"></p>
+                <div class="flex justify-end space-x-2">
+                    <button id="cancelModal" class="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">Cancel</button>
+                    <button id="confirmModal" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Set Firebase debug logs (optional)
+        setLogLevel('debug');
+
+        // Global variables for Firebase configuration and app ID
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth;
+        let userId = 'authenticating...';
+
+        // UI elements
+        const keyForm = document.getElementById('keyForm');
+        const keyList = document.getElementById('keyList');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const confirmModalBtn = document.getElementById('confirmModal');
+        const cancelModalBtn = document.getElementById('cancelModal');
+        const closeModalBtn = document.getElementById('closeModal');
+
+        // Initialize Firebase
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            userIdDisplay.textContent = 'Error initializing Firebase.';
+            alert("An error occurred during Firebase initialization. Please check your configuration.");
+        }
+
+        // Handle user authentication state
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                userIdDisplay.textContent = userId;
+                console.log("User authenticated with ID:", userId);
+                setupRealtimeListener(userId);
+            } else {
+                console.log("No user authenticated. Signing in...");
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                        console.log("Signed in with custom token.");
+                    } else {
+                        await signInAnonymously(auth);
+                        console.log("Signed in anonymously.");
+                    }
+                } catch (error) {
+                    console.error("Authentication error:", error);
+                    userIdDisplay.textContent = 'Authentication failed.';
+                }
+            }
+        });
+
+        // Setup Firestore listener for real-time updates
+        function setupRealtimeListener(currentUserId) {
+            const keysCollectionPath = `/artifacts/${appId}/users/${currentUserId}/api_keys`;
+            const q = collection(db, keysCollectionPath);
+
+            onSnapshot(q, (snapshot) => {
+                keyList.innerHTML = ''; // Clear the list
+                if (snapshot.empty) {
+                    keyList.innerHTML = '<p class="text-center text-gray-500 py-8">No keys found. Add one above!</p>';
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const keyItem = document.createElement('div');
+                    keyItem.className = 'bg-white dark:bg-gray-700 p-4 rounded-md shadow flex flex-col sm:flex-row items-start sm:items-center justify-between transition-transform transform hover:scale-[1.01]';
+                    keyItem.innerHTML = `
+                        <div class="flex-1 w-full sm:w-auto mb-2 sm:mb-0">
+                            <div class="font-bold text-lg text-indigo-600 dark:text-indigo-400">${data.serviceName}</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-300 break-all pr-4 mt-1">${data.key}</div>
+                            ${data.description ? `<div class="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">${data.description}</div>` : ''}
+                        </div>
+                        <div class="flex space-x-2 mt-2 sm:mt-0">
+                            <button data-id="${doc.id}" data-action="copy" class="copy-btn text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Copy Key">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                            <button data-id="${doc.id}" data-action="edit" class="edit-btn text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Edit Key">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                            </button>
+                            <button data-id="${doc.id}" data-action="delete" class="delete-btn text-red-500 hover:text-red-700 dark:hover:text-red-300 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Delete Key">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                    `;
+                    keyList.appendChild(keyItem);
+                });
+            }, (error) => {
+                console.error("Error fetching keys:", error);
+                keyList.innerHTML = `<p class="text-center text-red-500 py-8">Error loading keys. Check console for details.</p>`;
+            });
+        }
+
+        // Custom Modal Logic
+        let currentAction = null;
+        let currentDocId = null;
+
+        function showModal(title, message, onConfirm) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modal.classList.remove('hidden');
+
+            const handleConfirm = () => {
+                onConfirm();
+                hideModal();
+            };
+
+            const handleCancel = () => {
+                hideModal();
+            };
+
+            confirmModalBtn.onclick = handleConfirm;
+            cancelModalBtn.onclick = handleCancel;
+            closeModalBtn.onclick = handleCancel;
+        }
+
+        function hideModal() {
+            modal.classList.add('hidden');
+        }
+
+        // Form submission handler
+        keyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const serviceName = document.getElementById('serviceName').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const description = document.getElementById('description').value.trim();
+
+            if (!serviceName || !apiKey) {
+                return;
+            }
+
+            const keysCollectionRef = collection(db, `/artifacts/${appId}/users/${userId}/api_keys`);
+
+            try {
+                await addDoc(keysCollectionRef, {
+                    serviceName,
+                    key: apiKey,
+                    description,
+                    createdAt: new Date()
+                });
+                keyForm.reset();
+            } catch (error) {
+                console.error("Error adding key:", error);
+                alert("Could not add key. Please try again.");
+            }
+        });
+
+        // Click handler for key list actions (copy, edit, delete)
+        keyList.addEventListener('click', async (e) => {
+            const target = e.target.closest('button');
+            if (!target) return;
+
+            const docId = target.dataset.id;
+            const action = target.dataset.action;
+            currentDocId = docId;
+
+            if (action === 'copy') {
+                try {
+                    const keyText = target.closest('div.sm:items-center').querySelector('.text-sm').textContent;
+                    // Use document.execCommand('copy') as navigator.clipboard.writeText may not work in iframes
+                    const textArea = document.createElement('textarea');
+                    textArea.value = keyText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert("Key copied to clipboard!");
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+            } else if (action === 'delete') {
+                showModal(
+                    "Delete Key",
+                    "Are you sure you want to delete this API key?",
+                    async () => {
+                        const keyDocRef = doc(db, `/artifacts/${appId}/users/${userId}/api_keys`, docId);
+                        try {
+                            await deleteDoc(keyDocRef);
+                            console.log("Document successfully deleted!");
+                        } catch (error) {
+                            console.error("Error removing document:", error);
+                        }
+                    }
+                );
+            } else if (action === 'edit') {
+                 // Open a simple edit prompt for demonstration
+                 const keyToEdit = e.target.closest('div.sm:items-center').querySelector('.text-sm').textContent;
+                 const newKey = prompt("Edit the API key:", keyToEdit);
+                 if (newKey !== null && newKey.trim() !== '') {
+                    const keyDocRef = doc(db, `/artifacts/${appId}/users/${userId}/api_keys`, docId);
+                    try {
+                        await updateDoc(keyDocRef, {
+                            key: newKey.trim()
+                        });
+                        console.log("Document successfully updated!");
+                    } catch (error) {
+                        console.error("Error updating document:", error);
+                    }
+                 }
+            }
+        });
+
+        // Simple alert replacement for general messages
+        function alert(message) {
+             showModal("Notification", message, () => {}); // No-op for confirm
+             confirmModalBtn.textContent = 'OK';
+             cancelModalBtn.classList.add('hidden');
+             closeModalBtn.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
+
