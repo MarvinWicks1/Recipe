@@ -434,6 +434,7 @@
         <nav class="main-nav">
             <button class="nav-btn active" data-section="import">Add Recipe</button>
             <button class="nav-btn" data-section="recipes">My Recipes</button>
+            <button class="nav-btn" onclick="recipeKeeper.showBackupOptions()">⚙️ Backup</button>
         </nav>
 
         <!-- Import Recipe Section -->
@@ -921,10 +922,174 @@
                     loader.remove();
                 }
             }
+
+            showBackupOptions() {
+                const modal = document.createElement('div');
+                modal.id = 'backup-modal';
+                modal.innerHTML = `
+                    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: var(--warm-white); padding: 40px; border-radius: 20px; box-shadow: 0 8px 32px var(--shadow); max-width: 500px; width: 90%; text-align: center;">
+                            <h3 style="color: var(--deep-sage); font-family: 'Libre Baskerville', serif; margin-bottom: 20px; font-size: 1.8rem;">Recipe Backup & Restore</h3>
+                            <p style="color: var(--soft-brown); margin-bottom: 30px; font-size: 1.1rem;">Keep your recipes safe with backup and restore options.</p>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
+                                <button id="export-recipes" style="background: var(--sage); color: white; border: none; padding: 15px 20px; border-radius: 25px; font-family: 'Crimson Text', serif; font-size: 1.1rem; cursor: pointer;">
+                                    📥 Export All Recipes
+                                </button>
+                                <label for="import-file" style="background: var(--light-sage); color: white; border: none; padding: 15px 20px; border-radius: 25px; font-family: 'Crimson Text', serif; font-size: 1.1rem; cursor: pointer; display: block;">
+                                    📤 Import Recipes from File
+                                </label>
+                                <input type="file" id="import-file" accept=".json" style="display: none;">
+                                <button id="clear-all-data" style="background: var(--terracotta); color: white; border: none; padding: 15px 20px; border-radius: 25px; font-family: 'Crimson Text', serif; font-size: 1.1rem; cursor: pointer;">
+                                    🗑️ Clear All Data
+                                </button>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px; padding: 15px; background: var(--light-sage); border-radius: 10px; color: white; font-size: 0.9rem;">
+                                <strong>📊 Current Status:</strong><br>
+                                <span id="recipe-count">${this.recipes.length} recipes stored</span><br>
+                                <span id="storage-info">Checking storage...</span>
+                            </div>
+                            
+                            <button id="close-backup" style="background: var(--soft-brown); color: white; border: none; padding: 12px 24px; border-radius: 25px; font-family: 'Crimson Text', serif; font-size: 1rem; cursor: pointer;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                // Update storage info
+                if ('storage' in navigator && 'estimate' in navigator.storage) {
+                    navigator.storage.estimate().then(estimate => {
+                        const usedMB = (estimate.usage / 1024 / 1024).toFixed(2);
+                        const quotaMB = (estimate.quota / 1024 / 1024).toFixed(2);
+                        document.getElementById('storage-info').textContent = `${usedMB}MB used of ${quotaMB}MB available`;
+                    });
+                }
+
+                // Event listeners
+                document.getElementById('export-recipes').addEventListener('click', () => this.exportRecipes());
+                document.getElementById('import-file').addEventListener('change', (e) => this.importRecipes(e));
+                document.getElementById('clear-all-data').addEventListener('click', () => this.clearAllData());
+                document.getElementById('close-backup').addEventListener('click', () => modal.remove());
+                
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.remove();
+                });
+            }
+
+            exportRecipes() {
+                const backup = {
+                    version: "1.0",
+                    exportDate: new Date().toISOString(),
+                    recipeCount: this.recipes.length,
+                    recipes: this.recipes
+                };
+
+                const dataStr = JSON.stringify(backup, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `recipe-keeper-backup-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(link.href);
+                
+                // Show success message
+                this.showMessage('✅ Recipes exported successfully!', 'success');
+            }
+
+            importRecipes(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const backup = JSON.parse(e.target.result);
+                        
+                        if (!backup.recipes || !Array.isArray(backup.recipes)) {
+                            throw new Error('Invalid backup file format');
+                        }
+
+                        // Merge with existing recipes (avoid duplicates by ID)
+                        const existingIds = new Set(this.recipes.map(r => r.id));
+                        const newRecipes = backup.recipes.filter(r => !existingIds.has(r.id));
+                        
+                        this.recipes.push(...newRecipes);
+                        this.saveRecipes();
+                        this.renderRecipes();
+                        
+                        document.getElementById('backup-modal').remove();
+                        this.showMessage(`✅ Imported ${newRecipes.length} new recipes!`, 'success');
+                        
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        this.showMessage('❌ Error importing recipes. Please check the file format.', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            clearAllData() {
+                if (confirm(`⚠️ Are you sure you want to delete ALL ${this.recipes.length} recipes?\n\nThis action cannot be undone. Consider exporting your recipes first.`)) {
+                    localStorage.removeItem('recipe-keeper-recipes');
+                    this.recipes = [];
+                    this.renderRecipes();
+                    document.getElementById('backup-modal').remove();
+                    this.showMessage('🗑️ All recipe data cleared.', 'info');
+                }
+            }
+
+            showMessage(message, type = 'info') {
+                const colors = {
+                    success: 'var(--sage)',
+                    error: 'var(--terracotta)',
+                    info: 'var(--soft-brown)'
+                };
+
+                const messageDiv = document.createElement('div');
+                messageDiv.innerHTML = `
+                    <div style="position: fixed; top: 20px; right: 20px; background: ${colors[type]}; color: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 10000; font-family: 'Crimson Text', serif;">
+                        ${message}
+                    </div>
+                `;
+                
+                document.body.appendChild(messageDiv);
+                
+                setTimeout(() => {
+                    if (messageDiv.parentElement) {
+                        messageDiv.remove();
+                    }
+                }, 4000);
+            }
         }
 
         // Initialize the app
         const recipeKeeper = new RecipeKeeper();
+
+        // Request persistent storage for better data retention
+        if ('storage' in navigator && 'persist' in navigator.storage) {
+            navigator.storage.persist().then(persistent => {
+                if (persistent) {
+                    console.log('✅ Persistent storage granted - recipes will be protected from automatic cleanup');
+                } else {
+                    console.log('⚠️ Persistent storage not granted - recipes may be cleared under storage pressure');
+                }
+            });
+        }
+
+        // Monitor storage usage
+        if ('storage' in navigator && 'estimate' in navigator.storage) {
+            navigator.storage.estimate().then(estimate => {
+                const usedMB = (estimate.usage / 1024 / 1024).toFixed(2);
+                const quotaMB = (estimate.quota / 1024 / 1024).toFixed(2);
+                console.log(`📊 Storage: ${usedMB}MB used of ${quotaMB}MB available`);
+            });
+        }
 
         // PWA Installation and Service Worker
         class PWAManager {
