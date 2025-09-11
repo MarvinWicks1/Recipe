@@ -1,0 +1,51 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Development files
+.env*
+.vscode
+.idea
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# PM2 files
+ecosystem.config.js
+
+# Docker files (don't include in build context)
+Dockerfile*
+docker-compose*.yml
+
+# Temporary files
+tmp
+temp
+.tmp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build artifacts that will be generated
+public/.htaccess
+nginx.conf.example
+
+# Scripts not needed in container
+update.sh
+deploy-webhook.js
+recipe-keeper.service

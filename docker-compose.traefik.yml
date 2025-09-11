@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  recipe-keeper:
+    build: .
+    container_name: recipe-keeper
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - traefik
+    labels:
+      # Enable Traefik
+      - "traefik.enable=true"
+      
+      # HTTP Router
+      - "traefik.http.routers.recipe-keeper.rule=Host(`recipes.yourdomain.com`)"
+      - "traefik.http.routers.recipe-keeper.entrypoints=websecure"
+      - "traefik.http.routers.recipe-keeper.tls.certresolver=letsencrypt"
+      
+      # Service
+      - "traefik.http.services.recipe-keeper.loadbalancer.server.port=3000"
+      
+      # Optional: Add authentication
+      # - "traefik.http.routers.recipe-keeper.middlewares=auth"
+      # - "traefik.http.middlewares.auth.basicauth.users=user:$$2y$$10$$hashed_password"
+      
+      # Optional: Add rate limiting
+      - "traefik.http.middlewares.recipe-limit.ratelimit.burst=10"
+      - "traefik.http.middlewares.recipe-limit.ratelimit.average=5"
+      - "traefik.http.routers.recipe-keeper.middlewares=recipe-limit"
+      
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  traefik:
+    external: true
