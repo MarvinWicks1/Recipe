@@ -1,4 +1,4 @@
-# 🏡 Farmhouse Recipe Keeper PWA
+# 🏡 Recipe Keeper PWA
 
 A beautiful, rustic Progressive Web App for storing and organizing your favorite recipes. Built with a calm, farmhouse kitchen aesthetic that makes recipe management feel like browsing through grandmother's recipe collection.
 
@@ -18,7 +18,7 @@ A beautiful, rustic Progressive Web App for storing and organizing your favorite
 
 ```bash
 # Clone or download the project
-cd farmhouse-recipe-keeper
+cd recipe-keeper
 
 # Install dependencies
 npm install
@@ -49,7 +49,7 @@ npm run pm2:start
 ## 📁 Project Structure
 
 ```
-farmhouse-recipe-keeper/
+recipe-keeper/
 ├── public/                 # Static files served by Express
 │   ├── index.html         # Main PWA application
 │   ├── manifest.json      # PWA manifest
@@ -185,8 +185,8 @@ The Express server includes security best practices:
 ### PM2 Monitoring
 ```bash
 pm2 monit                    # Real-time monitoring
-pm2 logs farmhouse-recipe-keeper  # View logs
-pm2 restart farmhouse-recipe-keeper # Restart app
+pm2 logs recipe-keeper  # View logs
+pm2 restart recipe-keeper # Restart app
 ```
 
 ## 🚀 Deployment Options
@@ -194,8 +194,8 @@ pm2 restart farmhouse-recipe-keeper # Restart app
 ### 1. VPS/Cloud Server
 ```bash
 # On your server
-git clone https://github.com/yourusername/farmhouse-recipe-keeper.git
-cd farmhouse-recipe-keeper
+git clone https://github.com/yourusername/recipe-keeper.git
+cd recipe-keeper
 npm install
 npm run build
 npm start
@@ -277,7 +277,7 @@ MIT License - feel free to use for personal or commercial projects.
 
 ### Support
 
-- Check the [Issues](https://github.com/yourusername/farmhouse-recipe-keeper/issues) page
+- Check the [Issues](https://github.com/yourusername/recipe-keeper/issues) page
 - Create a new issue with detailed description
 - Include browser/server information
 

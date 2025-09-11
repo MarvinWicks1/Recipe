@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('🔨 Building Farmhouse Recipe Keeper PWA...');
+console.log('🔨 Building Recipe Keeper PWA...');
 
 // Ensure public directory exists
 const publicDir = path.join(__dirname, 'public');
@@ -17,7 +17,7 @@ const swPath = path.join(publicDir, 'sw.js');
 if (fs.existsSync(swPath)) {
   let swContent = fs.readFileSync(swPath, 'utf8');
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const newCacheName = `farmhouse-recipe-keeper-v${timestamp}`;
+  const newCacheName = `recipe-keeper-v${timestamp}`;
   
   swContent = swContent.replace(
     /const CACHE_NAME = '[^']+';/,
@@ -112,11 +112,11 @@ fs.writeFileSync(path.join(publicDir, '.htaccess'), htaccessContent);
 console.log('✅ Created .htaccess file for Apache');
 
 // Create nginx.conf template
-const nginxConfig = `# Nginx configuration for Farmhouse Recipe Keeper PWA
+const nginxConfig = `# Nginx configuration for Recipe Keeper PWA
 server {
     listen 80;
     server_name your-domain.com;
-    root /path/to/farmhouse-recipe-keeper/public;
+    root /path/to/recipe-keeper/public;
     index index.html;
 
     # Security headers

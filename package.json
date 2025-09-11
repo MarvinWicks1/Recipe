@@ -1,5 +1,5 @@
 {
-  "name": "farmhouse-recipe-keeper",
+  "name": "recipe-keeper",
   "version": "1.0.0",
   "description": "A beautiful, rustic PWA for storing and organizing your favorite recipes",
   "main": "server.js",
@@ -9,9 +9,9 @@
     "build": "node build.js",
     "install-deps": "npm install",
     "pm2:start": "pm2 start ecosystem.config.js",
-    "pm2:stop": "pm2 stop farmhouse-recipe-keeper",
-    "pm2:restart": "pm2 restart farmhouse-recipe-keeper",
-    "pm2:logs": "pm2 logs farmhouse-recipe-keeper"
+    "pm2:stop": "pm2 stop recipe-keeper",
+    "pm2:restart": "pm2 restart recipe-keeper",
+    "pm2:logs": "pm2 logs recipe-keeper"
   },
   "keywords": [
     "recipe",

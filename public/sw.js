@@ -1,5 +1,5 @@
-// Farmhouse Recipe Keeper Service Worker
-const CACHE_NAME = 'farmhouse-recipe-keeper-v2025-09-11T15-13-31-634Z';
+// Recipe Keeper Service Worker
+const CACHE_NAME = 'recipe-keeper-v2025-09-11T15-16-02-922Z';
 const urlsToCache = [
   '/recipe-keeper.html',
   '/manifest.json',
@@ -145,9 +145,9 @@ self.addEventListener('push', (event) => {
     ]
   };
 
-  event.waitUntil(
-    self.registration.showNotification('Farmhouse Recipe Keeper', options)
-  );
+      event.waitUntil(
+        self.registration.showNotification('Recipe Keeper', options)
+      );
 });
 
 // Handle notification clicks

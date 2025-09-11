@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmhouse Recipe Keeper</title>
+    <title>Recipe Keeper</title>
     
     <!-- PWA Meta Tags -->
     <meta name="description" content="A beautiful, rustic recipe keeper app for storing and organizing your favorite recipes">
@@ -427,7 +427,7 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>Farmhouse Recipe Keeper</h1>
+            <h1>Recipe Keeper</h1>
             <p>Gather your favorite recipes in one cozy place</p>
         </header>
 
@@ -878,12 +878,12 @@
             }
 
             loadRecipes() {
-                const saved = localStorage.getItem('farmhouse-recipes');
+                const saved = localStorage.getItem('recipe-keeper-recipes');
                 return saved ? JSON.parse(saved) : [];
             }
 
             saveRecipes() {
-                localStorage.setItem('farmhouse-recipes', JSON.stringify(this.recipes));
+                localStorage.setItem('recipe-keeper-recipes', JSON.stringify(this.recipes));
             }
 
             escapeHtml(text) {

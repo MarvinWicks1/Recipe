@@ -1,7 +1,7 @@
 // PM2 ecosystem configuration for production deployment
 module.exports = {
   apps: [{
-    name: 'farmhouse-recipe-keeper',
+    name: 'recipe-keeper',
     script: 'server.js',
     instances: 'max', // Use all CPU cores
     exec_mode: 'cluster',
@@ -49,8 +49,8 @@ module.exports = {
       user: 'deploy',
       host: 'your-server.com',
       ref: 'origin/main',
-      repo: 'https://github.com/yourusername/farmhouse-recipe-keeper.git',
-      path: '/var/www/farmhouse-recipe-keeper',
+      repo: 'https://github.com/yourusername/recipe-keeper.git',
+      path: '/var/www/recipe-keeper',
       'pre-deploy-local': '',
       'post-deploy': 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
       'pre-setup': '',

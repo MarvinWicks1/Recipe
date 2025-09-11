@@ -1,5 +1,5 @@
 {
-  "name": "Farmhouse Recipe Keeper",
+  "name": "Recipe Keeper",
   "short_name": "Recipe Keeper",
   "description": "A beautiful, rustic recipe keeper app for storing and organizing your favorite recipes",
   "start_url": "/recipe-keeper.html",

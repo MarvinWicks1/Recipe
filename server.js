@@ -123,11 +123,11 @@ process.on('SIGINT', () => {
 
 // Start server
 const server = app.listen(PORT, HOST, () => {
-  console.log(`🍳 Farmhouse Recipe Keeper PWA running on http://${HOST}:${PORT}`);
-  console.log(`📱 Access your app at: http://localhost:${PORT}`);
-  console.log(`🌍 Server accessible from: http://${HOST}:${PORT}`);
-  console.log(`📊 Health check: http://${HOST}:${PORT}/api/health`);
-  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🍳 Recipe Keeper PWA running on http://${HOST}:${PORT}`);
+    console.log(`📱 Access your app at: http://localhost:${PORT}`);
+    console.log(`🌍 Server accessible from: http://${HOST}:${PORT}`);
+    console.log(`📊 Health check: http://${HOST}:${PORT}/api/health`);
+    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 module.exports = app;

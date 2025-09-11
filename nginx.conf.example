@@ -1,8 +1,8 @@
-# Nginx configuration for Farmhouse Recipe Keeper PWA
+# Nginx configuration for Recipe Keeper PWA
 server {
     listen 80;
     server_name your-domain.com;
-    root /path/to/farmhouse-recipe-keeper/public;
+    root /path/to/recipe-keeper/public;
     index index.html;
 
     # Security headers
