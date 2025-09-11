@@ -1,0 +1,30 @@
+[Unit]
+Description=Recipe Keeper PWA
+Documentation=https://github.com/yourusername/recipe-keeper
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/recipe-keeper
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=10
+KillMode=mixed
+KillSignal=SIGINT
+TimeoutStopSec=5
+SyslogIdentifier=recipe-keeper
+
+# Environment
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOST=0.0.0.0
+
+# Security settings
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/www/recipe-keeper
+
+[Install]
+WantedBy=multi-user.target
