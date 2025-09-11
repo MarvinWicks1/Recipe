@@ -1,0 +1,9 @@
+<!-- This is a placeholder - Replace with actual 16x16 PNG favicon -->
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <rect width="16" height="16" rx="2" fill="#9caf88"/>
+  <circle cx="8" cy="6" r="2" fill="#faf7f2"/>
+  <rect x="6" y="8" width="4" height="4" rx="1" fill="#faf7f2"/>
+  <rect x="6.5" y="9" width="3" height="0.5" fill="#c17b5c"/>
+  <rect x="6.5" y="10" width="2.5" height="0.5" fill="#8b6f47"/>
+  <rect x="6.5" y="11" width="2" height="0.5" fill="#8b6f47"/>
+</svg>

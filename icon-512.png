@@ -1,0 +1,12 @@
+<!-- This is a placeholder - Replace with actual 512x512 PNG icon -->
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="64" fill="#9caf88"/>
+  <circle cx="256" cy="180" r="60" fill="#faf7f2" stroke="#8b6f47" stroke-width="6"/>
+  <rect x="196" y="250" width="120" height="100" rx="16" fill="#faf7f2" stroke="#8b6f47" stroke-width="6"/>
+  <rect x="210" y="270" width="94" height="12" fill="#c17b5c"/>
+  <rect x="210" y="290" width="84" height="8" fill="#8b6f47"/>
+  <rect x="210" y="306" width="74" height="8" fill="#8b6f47"/>
+  <rect x="210" y="322" width="64" height="8" fill="#8b6f47"/>
+  <text x="256" y="400" text-anchor="middle" fill="#faf7f2" font-family="serif" font-size="32" font-weight="bold">Recipe</text>
+  <text x="256" y="440" text-anchor="middle" fill="#faf7f2" font-family="serif" font-size="32" font-weight="bold">Keeper</text>
+</svg>

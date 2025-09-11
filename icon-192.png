@@ -1,0 +1,11 @@
+<!-- This is a placeholder - Replace with actual 192x192 PNG icon -->
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="24" fill="#9caf88"/>
+  <circle cx="96" cy="70" r="25" fill="#faf7f2" stroke="#8b6f47" stroke-width="2"/>
+  <rect x="71" y="95" width="50" height="40" rx="8" fill="#faf7f2" stroke="#8b6f47" stroke-width="2"/>
+  <rect x="76" y="100" width="40" height="6" fill="#c17b5c"/>
+  <rect x="76" y="110" width="35" height="4" fill="#8b6f47"/>
+  <rect x="76" y="118" width="30" height="4" fill="#8b6f47"/>
+  <rect x="76" y="126" width="25" height="4" fill="#8b6f47"/>
+  <text x="96" y="160" text-anchor="middle" fill="#faf7f2" font-family="serif" font-size="16" font-weight="bold">Recipe Keeper</text>
+</svg>
