@@ -1,5 +1,5 @@
 // Farmhouse Recipe Keeper Service Worker
-const CACHE_NAME = 'farmhouse-recipe-keeper-v2025-09-11T14-57-00-920Z';
+const CACHE_NAME = 'farmhouse-recipe-keeper-v2025-09-11T15-13-31-634Z';
 const urlsToCache = [
   '/recipe-keeper.html',
   '/manifest.json',
