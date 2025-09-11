@@ -1,0 +1,48 @@
+{
+  "name": "farmhouse-recipe-keeper",
+  "version": "1.0.0",
+  "description": "A beautiful, rustic PWA for storing and organizing your favorite recipes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "node build.js",
+    "install-deps": "npm install",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop farmhouse-recipe-keeper",
+    "pm2:restart": "pm2 restart farmhouse-recipe-keeper",
+    "pm2:logs": "pm2 logs farmhouse-recipe-keeper"
+  },
+  "keywords": [
+    "recipe",
+    "pwa",
+    "farmhouse",
+    "cooking",
+    "food",
+    "progressive-web-app"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "compression": "^1.7.4",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "serve-static": "^1.15.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/farmhouse-recipe-keeper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/farmhouse-recipe-keeper/issues"
+  },
+  "homepage": "https://github.com/yourusername/farmhouse-recipe-keeper#readme"
+}
