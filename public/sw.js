@@ -1,7 +1,8 @@
 // Recipe Keeper Service Worker
-const CACHE_NAME = 'recipe-keeper-v2025-09-13T08-49-53-439Z';
+const CACHE_NAME = 'recipe-keeper-v2025-09-13T15-29-26-201Z';
 const urlsToCache = [
-  '/recipe-keeper.html',
+  '/',
+  '/index.html',
   '/manifest.json',
   'https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap',
   'https://fonts.gstatic.com/s/crimsontext/v19/wlp2gwHKFkZgtmSR3NB0oRJX-g5J.woff2',
@@ -92,7 +93,7 @@ self.addEventListener('fetch', (event) => {
             
             // Return offline page or fallback for HTML requests
             if (event.request.destination === 'document') {
-              return caches.match('/recipe-keeper.html');
+              return caches.match('/index.html');
             }
             
             // For other requests, just fail gracefully
@@ -158,7 +159,7 @@ self.addEventListener('notificationclick', (event) => {
 
   if (event.action === 'view') {
     event.waitUntil(
-      clients.openWindow('/recipe-keeper.html#recipes')
+      clients.openWindow('/#recipes')
     );
   }
 });
