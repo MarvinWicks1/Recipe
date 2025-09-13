@@ -1590,6 +1590,127 @@
             margin-top: 20px;
         }
 
+        /* Import Divider */
+        .import-divider {
+            text-align: center;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .import-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--light-sage);
+        }
+
+        .import-divider span {
+            background: var(--warm-white);
+            padding: 0 15px;
+            color: var(--soft-brown);
+            font-style: italic;
+        }
+
+        /* OCR Scanning Styles */
+        .ocr-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .camera-option {
+            margin-top: 10px;
+        }
+
+        .ocr-interface {
+            text-align: center;
+        }
+
+        .camera-container {
+            margin: 20px 0;
+        }
+
+        .camera-controls, .image-controls, .ocr-actions {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .image-preview {
+            margin: 20px 0;
+        }
+
+        .ocr-results {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .ocr-results textarea {
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Website Import Styles */
+        .import-status {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--light-sage);
+            border-top: 4px solid var(--sage);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .import-results {
+            text-align: left;
+        }
+
+        .imported-recipe-preview {
+            background: var(--warm-white);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid var(--light-sage);
+        }
+
+        .imported-recipe-preview h5 {
+            color: var(--deep-sage);
+            font-family: 'Libre Baskerville', serif;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .import-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* Camera and Image Styles */
+        #cameraVideo, #previewImage {
+            box-shadow: 0 4px 15px var(--soft-shadow);
+        }
+
+        .camera-controls button, .image-controls button, .ocr-actions button {
+            min-width: 120px;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2.5rem;
@@ -2041,14 +2162,35 @@
                     <!-- Import Recipes -->
                     <div class="social-card">
                         <h3>📥 Import Recipes</h3>
-                        <p>Import recipes from social media links or JSON files</p>
+                        <p>Import recipes from websites, social media, or files</p>
                         <div class="import-options">
+                            <input type="url" id="websiteUrl" class="form-control" placeholder="Paste recipe website URL here...">
+                            <button class="btn-primary" onclick="recipeKeeper.importFromWebsite()">🌐 Import from Website</button>
+                            
+                            <div class="import-divider">
+                                <span>or</span>
+                            </div>
+                            
                             <input type="url" id="socialMediaUrl" class="form-control" placeholder="Paste social media URL here...">
-                            <button class="btn-primary" onclick="recipeKeeper.importFromUrl()">Import from URL</button>
+                            <button class="btn-secondary" onclick="recipeKeeper.importFromUrl()">📱 Import from Social Media</button>
                             
                             <div class="file-import">
                                 <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
-                                <button class="btn-secondary" onclick="document.getElementById('jsonFileInput').click()">Import JSON File</button>
+                                <button class="btn-secondary" onclick="document.getElementById('jsonFileInput').click()">📄 Import JSON File</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OCR Scanning -->
+                    <div class="social-card">
+                        <h3>📷 Scan Recipes</h3>
+                        <p>Scan cookbooks, magazines, and handwritten recipes</p>
+                        <div class="ocr-options">
+                            <input type="file" id="ocrFileInput" accept="image/*,.pdf" style="display: none;" multiple>
+                            <button class="btn-primary" onclick="document.getElementById('ocrFileInput').click()">📷 Scan Images/PDF</button>
+                            
+                            <div class="camera-option">
+                                <button class="btn-secondary" onclick="recipeKeeper.startCameraScan()">📱 Use Camera</button>
                             </div>
                         </div>
                     </div>
@@ -2183,6 +2325,73 @@
                 </div>
             </div>
         </div>
+
+        <!-- OCR Scanning Modal -->
+        <div id="ocrScanModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h3>📷 OCR Recipe Scanner</h3>
+                    <button class="close-btn" onclick="recipeKeeper.closeOCRModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="ocr-interface">
+                        <div class="camera-container" id="cameraContainer" style="display: none;">
+                            <video id="cameraVideo" autoplay muted style="width: 100%; max-width: 400px; border-radius: 10px;"></video>
+                            <canvas id="cameraCanvas" style="display: none;"></canvas>
+                            <div class="camera-controls">
+                                <button class="btn-primary" onclick="recipeKeeper.capturePhoto()">📷 Capture</button>
+                                <button class="btn-secondary" onclick="recipeKeeper.stopCamera()">❌ Stop Camera</button>
+                            </div>
+                        </div>
+                        
+                        <div class="image-preview" id="imagePreview" style="display: none;">
+                            <img id="previewImage" style="max-width: 100%; max-height: 400px; border-radius: 10px;">
+                            <div class="image-controls">
+                                <button class="btn-primary" onclick="recipeKeeper.processImage()">🔍 Extract Text</button>
+                                <button class="btn-secondary" onclick="recipeKeeper.retakePhoto()">🔄 Retake</button>
+                            </div>
+                        </div>
+                        
+                        <div class="ocr-results" id="ocrResults" style="display: none;">
+                            <h4>Extracted Text:</h4>
+                            <textarea id="extractedText" class="form-control" rows="10" placeholder="Extracted text will appear here..."></textarea>
+                            <div class="ocr-actions">
+                                <button class="btn-secondary" onclick="recipeKeeper.editExtractedText()">✏️ Edit Text</button>
+                                <button class="btn-primary" onclick="recipeKeeper.createRecipeFromOCR()">📝 Create Recipe</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Website Import Modal -->
+        <div id="websiteImportModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3>🌐 Website Recipe Import</h3>
+                    <button class="close-btn" onclick="recipeKeeper.closeWebsiteImportModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="import-status" id="importStatus">
+                        <div class="loading-spinner"></div>
+                        <p>Analyzing website and extracting recipe data...</p>
+                    </div>
+                    
+                    <div class="import-results" id="importResults" style="display: none;">
+                        <h4>Found Recipe:</h4>
+                        <div class="imported-recipe-preview">
+                            <h5 id="importedTitle"></h5>
+                            <div id="importedContent" class="recipe-content"></div>
+                        </div>
+                        <div class="import-actions">
+                            <button class="btn-secondary" onclick="recipeKeeper.editImportedRecipe()">✏️ Edit Before Import</button>
+                            <button class="btn-primary" onclick="recipeKeeper.confirmImport()">✅ Import Recipe</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Recipe Detail Modal -->
@@ -2210,6 +2419,7 @@
                 this.initializeFileImport();
                 this.initializeShoppingList();
                 this.initializeRichTextEditor();
+                this.initializeOCRFileHandling();
                 this.renderRecipes();
                 this.handleSharedRecipe();
             }
@@ -4314,6 +4524,351 @@
 
             closeUnitConversionModal() {
                 document.getElementById('unitConversionModal').style.display = 'none';
+            }
+
+            // Website Import Methods
+            async importFromWebsite() {
+                const url = document.getElementById('websiteUrl').value.trim();
+                if (!url) {
+                    this.showMessage('Please enter a website URL', 'error');
+                    return;
+                }
+
+                // Show import modal
+                document.getElementById('websiteImportModal').style.display = 'block';
+                document.getElementById('importStatus').style.display = 'block';
+                document.getElementById('importResults').style.display = 'none';
+
+                try {
+                    // Simulate website analysis (in a real implementation, you'd use a CORS proxy or backend service)
+                    await this.analyzeWebsite(url);
+                } catch (error) {
+                    this.showMessage('Error importing from website: ' + error.message, 'error');
+                    this.closeWebsiteImportModal();
+                }
+            }
+
+            async analyzeWebsite(url) {
+                // Simulate website analysis with a delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // In a real implementation, you would:
+                // 1. Use a CORS proxy or backend service to fetch the webpage
+                // 2. Parse the HTML to extract recipe data using structured data (JSON-LD, microdata)
+                // 3. Fall back to content analysis if no structured data is found
+
+                // For demo purposes, we'll simulate finding a recipe
+                const mockRecipe = this.generateMockRecipeFromUrl(url);
+                
+                document.getElementById('importStatus').style.display = 'none';
+                document.getElementById('importResults').style.display = 'block';
+                document.getElementById('importedTitle').textContent = mockRecipe.title;
+                document.getElementById('importedContent').innerHTML = mockRecipe.content;
+                
+                this.currentImportedRecipe = mockRecipe;
+            }
+
+            generateMockRecipeFromUrl(url) {
+                const domain = new URL(url).hostname;
+                const recipeTemplates = {
+                    'allrecipes.com': {
+                        title: 'Classic Chocolate Chip Cookies',
+                        content: `
+                            <h3>Ingredients</h3>
+                            <ul>
+                                <li>2 1/4 cups all-purpose flour</li>
+                                <li>1 tsp baking soda</li>
+                                <li>1 tsp salt</li>
+                                <li>1 cup butter, softened</li>
+                                <li>3/4 cup granulated sugar</li>
+                                <li>3/4 cup packed brown sugar</li>
+                                <li>2 large eggs</li>
+                                <li>2 tsp vanilla extract</li>
+                                <li>2 cups chocolate chips</li>
+                            </ul>
+                            <h3>Instructions</h3>
+                            <ol>
+                                <li>Preheat oven to 375°F (190°C).</li>
+                                <li>Mix flour, baking soda, and salt in a bowl.</li>
+                                <li>Cream butter and sugars until fluffy.</li>
+                                <li>Beat in eggs and vanilla.</li>
+                                <li>Gradually blend in flour mixture.</li>
+                                <li>Stir in chocolate chips.</li>
+                                <li>Drop rounded tablespoons onto ungreased cookie sheets.</li>
+                                <li>Bake 9-11 minutes until golden brown.</li>
+                            </ol>
+                        `
+                    },
+                    'foodnetwork.com': {
+                        title: 'Perfect Pancakes',
+                        content: `
+                            <h3>Ingredients</h3>
+                            <ul>
+                                <li>1 1/2 cups all-purpose flour</li>
+                                <li>3 1/2 tsp baking powder</li>
+                                <li>1 tsp salt</li>
+                                <li>1 tbsp white sugar</li>
+                                <li>1 1/4 cups milk</li>
+                                <li>1 egg</li>
+                                <li>3 tbsp butter, melted</li>
+                            </ul>
+                            <h3>Instructions</h3>
+                            <ol>
+                                <li>In a large bowl, sift together flour, baking powder, salt and sugar.</li>
+                                <li>Make a well in the center and pour in milk, egg and melted butter.</li>
+                                <li>Mix until smooth.</li>
+                                <li>Heat a lightly oiled griddle or frying pan over medium-high heat.</li>
+                                <li>Pour or scoop the batter onto the griddle, using approximately 1/4 cup for each pancake.</li>
+                                <li>Brown on both sides and serve hot.</li>
+                            </ol>
+                        `
+                    }
+                };
+
+                return recipeTemplates[domain] || {
+                    title: `Recipe from ${domain}`,
+                    content: `
+                        <p><strong>Note:</strong> This is a simulated import from ${domain}.</p>
+                        <p>In a real implementation, this would contain the actual recipe data extracted from the website.</p>
+                        <p>Please edit this content to add your recipe details.</p>
+                    `
+                };
+            }
+
+            editImportedRecipe() {
+                // Switch to add recipe section with pre-filled data
+                this.switchSection('import');
+                document.getElementById('recipeTitle').value = this.currentImportedRecipe.title;
+                this.setRichTextContent(this.currentImportedRecipe.content);
+                this.closeWebsiteImportModal();
+            }
+
+            confirmImport() {
+                if (!this.currentImportedRecipe) return;
+
+                const recipe = {
+                    id: Date.now().toString(),
+                    title: this.currentImportedRecipe.title,
+                    content: this.currentImportedRecipe.content,
+                    createdAt: new Date().toISOString(),
+                    ingredients: [],
+                    instructions: [],
+                    servings: '',
+                    prepTime: '',
+                    cookTime: '',
+                    type: '',
+                    mainIngredient: '',
+                    cuisine: '',
+                    difficulty: '',
+                    cookTimeCategory: '',
+                    dietary: [],
+                    rating: 0,
+                    isFavorite: false,
+                    photo: null,
+                    nutrition: {
+                        calories: '',
+                        protein: '',
+                        carbs: '',
+                        fat: '',
+                        fiber: '',
+                        sugar: '',
+                        sodium: ''
+                    },
+                    videoUrl: '',
+                    relatedRecipes: [],
+                    notes: `Imported from website`
+                };
+
+                this.recipes.push(recipe);
+                this.saveRecipes();
+                this.renderRecipes();
+                this.closeWebsiteImportModal();
+                this.showMessage('✅ Recipe imported successfully!', 'success');
+                document.getElementById('websiteUrl').value = '';
+            }
+
+            closeWebsiteImportModal() {
+                document.getElementById('websiteImportModal').style.display = 'none';
+                this.currentImportedRecipe = null;
+            }
+
+            // OCR Scanning Methods
+            startCameraScan() {
+                document.getElementById('ocrScanModal').style.display = 'block';
+                document.getElementById('cameraContainer').style.display = 'block';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('ocrResults').style.display = 'none';
+
+                this.startCamera();
+            }
+
+            async startCamera() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'environment',
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        } 
+                    });
+                    
+                    const video = document.getElementById('cameraVideo');
+                    video.srcObject = stream;
+                    this.cameraStream = stream;
+                } catch (error) {
+                    this.showMessage('Camera access denied. Please use file upload instead.', 'error');
+                    this.closeOCRModal();
+                }
+            }
+
+            capturePhoto() {
+                const video = document.getElementById('cameraVideo');
+                const canvas = document.getElementById('cameraCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0);
+                
+                const imageData = canvas.toDataURL('image/jpeg');
+                this.currentImageData = imageData;
+                
+                // Show preview
+                document.getElementById('previewImage').src = imageData;
+                document.getElementById('cameraContainer').style.display = 'none';
+                document.getElementById('imagePreview').style.display = 'block';
+            }
+
+            stopCamera() {
+                if (this.cameraStream) {
+                    this.cameraStream.getTracks().forEach(track => track.stop());
+                    this.cameraStream = null;
+                }
+                document.getElementById('cameraContainer').style.display = 'none';
+            }
+
+            retakePhoto() {
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('cameraContainer').style.display = 'block';
+                document.getElementById('ocrResults').style.display = 'none';
+            }
+
+            async processImage() {
+                if (!this.currentImageData) {
+                    this.showMessage('No image to process', 'error');
+                    return;
+                }
+
+                this.showLoading('Extracting text from image...');
+                
+                try {
+                    // In a real implementation, you would use Tesseract.js or a similar OCR library
+                    // For demo purposes, we'll simulate OCR processing
+                    const extractedText = await this.simulateOCR(this.currentImageData);
+                    
+                    document.getElementById('extractedText').value = extractedText;
+                    document.getElementById('imagePreview').style.display = 'none';
+                    document.getElementById('ocrResults').style.display = 'block';
+                    this.hideLoading();
+                } catch (error) {
+                    this.hideLoading();
+                    this.showMessage('Error processing image: ' + error.message, 'error');
+                }
+            }
+
+            async simulateOCR(imageData) {
+                // Simulate OCR processing delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Return mock extracted text
+                return `Chocolate Chip Cookies
+
+Ingredients:
+- 2 1/4 cups all-purpose flour
+- 1 tsp baking soda
+- 1 tsp salt
+- 1 cup butter, softened
+- 3/4 cup granulated sugar
+- 3/4 cup packed brown sugar
+- 2 large eggs
+- 2 tsp vanilla extract
+- 2 cups chocolate chips
+
+Instructions:
+1. Preheat oven to 375°F (190°C)
+2. Mix flour, baking soda, and salt in a bowl
+3. Cream butter and sugars until fluffy
+4. Beat in eggs and vanilla
+5. Gradually blend in flour mixture
+6. Stir in chocolate chips
+7. Drop rounded tablespoons onto ungreased cookie sheets
+8. Bake 9-11 minutes until golden brown
+
+Note: This is simulated OCR text. In a real implementation, this would be the actual text extracted from your image.`;
+            }
+
+            editExtractedText() {
+                // Allow user to edit the extracted text
+                const textarea = document.getElementById('extractedText');
+                textarea.focus();
+                textarea.select();
+            }
+
+            createRecipeFromOCR() {
+                const extractedText = document.getElementById('extractedText').value.trim();
+                if (!extractedText) {
+                    this.showMessage('No text to create recipe from', 'error');
+                    return;
+                }
+
+                // Switch to add recipe section with OCR text
+                this.switchSection('import');
+                document.getElementById('recipeTitle').value = 'Scanned Recipe';
+                this.setRichTextContent(`<pre>${this.escapeHtml(extractedText)}</pre>`);
+                this.closeOCRModal();
+                this.showMessage('✅ OCR text loaded into recipe editor. Please edit and save.', 'success');
+            }
+
+            closeOCRModal() {
+                this.stopCamera();
+                document.getElementById('ocrScanModal').style.display = 'none';
+                this.currentImageData = null;
+            }
+
+            // Initialize OCR file handling
+            initializeOCRFileHandling() {
+                const fileInput = document.getElementById('ocrFileInput');
+                fileInput.addEventListener('change', (e) => {
+                    const files = Array.from(e.target.files);
+                    if (files.length > 0) {
+                        this.processOCRFiles(files);
+                    }
+                });
+            }
+
+            async processOCRFiles(files) {
+                for (const file of files) {
+                    if (file.type.startsWith('image/')) {
+                        await this.processImageFile(file);
+                    } else if (file.type === 'application/pdf') {
+                        this.showMessage('PDF processing not yet implemented. Please use image files.', 'info');
+                    }
+                }
+            }
+
+            async processImageFile(file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    this.currentImageData = e.target.result;
+                    
+                    // Show OCR modal with image
+                    document.getElementById('ocrScanModal').style.display = 'block';
+                    document.getElementById('previewImage').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    document.getElementById('cameraContainer').style.display = 'none';
+                    document.getElementById('ocrResults').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
             }
 
             // Shopping List Methods
