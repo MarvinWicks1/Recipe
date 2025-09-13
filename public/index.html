@@ -2295,6 +2295,7 @@
                             <input type="url" id="socialMediaUrl" class="form-control" placeholder="Paste social media URL here...">
                             <button class="btn-secondary" onclick="recipeKeeper.importFromUrl()">📱 Import from Social Media</button>
                             <button class="btn-secondary" onclick="recipeKeeper.testSocialMediaImport()" style="margin-top: 10px;">🧪 Test Social Media Import</button>
+                            <button class="btn-secondary" onclick="alert('Basic JavaScript test - this should work!')" style="margin-top: 10px; background: red;">🔴 Basic JS Test</button>
                             
                             <div class="file-import">
                                 <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
@@ -5905,10 +5906,13 @@ Note: This is a demo OCR result. In a real implementation, this would be extract
         }
 
         // Initialize the app
+        alert('DEBUG: About to create RecipeKeeper instance');
         const recipeKeeper = new RecipeKeeper();
+        alert('DEBUG: RecipeKeeper instance created');
         
         // Make recipeKeeper globally accessible for onclick handlers
         window.recipeKeeper = recipeKeeper;
+        alert('DEBUG: recipeKeeper added to window object');
 
         // Request persistent storage for better data retention
         if ('storage' in navigator && 'persist' in navigator.storage) {
@@ -6064,6 +6068,17 @@ Note: This is a demo OCR result. In a real implementation, this would be extract
 
         // Handle deep links for PWA shortcuts
         window.addEventListener('DOMContentLoaded', () => {
+            alert('DEBUG: DOM loaded, JavaScript is working');
+            
+            // Initialize the recipe keeper app
+            if (typeof recipeKeeper !== 'undefined') {
+                alert('DEBUG: recipeKeeper object exists');
+                recipeKeeper.init();
+                alert('DEBUG: recipeKeeper initialized');
+            } else {
+                alert('ERROR: recipeKeeper object not found!');
+            }
+            
             const hash = window.location.hash;
             if (hash === '#add') {
                 recipeKeeper.switchSection('import');
