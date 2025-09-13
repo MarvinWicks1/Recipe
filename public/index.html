@@ -674,6 +674,247 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
+        /* Rating System Styles */
+        .rating-container {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 2px;
+        }
+
+        .star {
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            user-select: none;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #ffd700;
+        }
+
+        .star:hover ~ .star {
+            color: #ddd;
+        }
+
+        /* Nutrition Grid */
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        /* Photo Preview */
+        .photo-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px var(--soft-shadow);
+            margin: 10px auto;
+        }
+
+        /* Recipe Card Enhancements */
+        .recipe-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .recipe-rating .stars {
+            color: #ffd700;
+            font-size: 1rem;
+        }
+
+        .recipe-favorite {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.2rem;
+            color: #ffd700;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .recipe-favorite:hover {
+            transform: scale(1.2);
+        }
+
+        .recipe-photo {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .recipe-video {
+            background: var(--terracotta);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+
+        /* Cooking Mode Styles */
+        .cooking-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--warm-white);
+            z-index: 2000;
+            overflow-y: auto;
+            font-size: 1.2rem;
+        }
+
+        .cooking-header {
+            background: var(--sage);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 2001;
+        }
+
+        .cooking-content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--light-sage);
+        }
+
+        .ingredient-checkbox {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+
+        .ingredient-checked {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .step-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light-sage);
+        }
+
+        .step-current {
+            background: var(--light-sage);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .cooking-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--sage);
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-cooking {
+            background: white;
+            color: var(--sage);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cooking:hover {
+            background: var(--light-sage);
+            color: white;
+        }
+
+        /* Shopping List Styles */
+        .shopping-list {
+            background: var(--warm-white);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px var(--soft-shadow);
+            border: 1px solid rgba(156, 175, 136, 0.1);
+        }
+
+        .aisle-group {
+            margin-bottom: 20px;
+        }
+
+        .aisle-title {
+            font-family: 'Libre Baskerville', serif;
+            color: var(--deep-sage);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--light-sage);
+        }
+
+        .shopping-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--light-sage);
+        }
+
+        .shopping-checkbox {
+            margin-right: 15px;
+            transform: scale(1.1);
+        }
+
+        .shopping-checked {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        /* Text Size Controls */
+        .text-size-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--sage);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .text-size-btn {
+            background: white;
+            color: var(--sage);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Crimson Text', serif;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2.5rem;
@@ -846,6 +1087,85 @@
                                     <label class="checkbox-label">
                                         <input type="checkbox" value="paleo"> Paleo
                                     </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Features Section -->
+                    <div class="category-section">
+                        <h3 style="color: var(--deep-sage); font-family: 'Libre Baskerville', serif; margin-bottom: 20px; font-size: 1.3rem;">Additional Features</h3>
+                        
+                        <div class="category-grid">
+                            <div class="form-group">
+                                <label for="recipePhoto">Recipe Photo</label>
+                                <input type="file" id="recipePhoto" class="form-control" accept="image/*">
+                                <div id="photoPreview" style="margin-top: 10px; text-align: center;"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="recipeRating">Rating</label>
+                                <div class="rating-container">
+                                    <div class="star-rating" id="starRating">
+                                        <span class="star" data-rating="1">★</span>
+                                        <span class="star" data-rating="2">★</span>
+                                        <span class="star" data-rating="3">★</span>
+                                        <span class="star" data-rating="4">★</span>
+                                        <span class="star" data-rating="5">★</span>
+                                    </div>
+                                    <span id="ratingText" style="margin-left: 10px; color: var(--soft-brown);">No rating</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="isFavorite">
+                                    <input type="checkbox" id="isFavorite" style="margin-right: 8px;">
+                                    ⭐ Mark as Favorite
+                                </label>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="videoUrl">Video URL (YouTube, etc.)</label>
+                                <input type="url" id="videoUrl" class="form-control" placeholder="https://youtube.com/watch?v=...">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="recipeNotes">Notes</label>
+                                <textarea id="recipeNotes" class="form-control" rows="3" placeholder="Personal notes, variations, tips..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Nutrition Information -->
+                        <div style="margin-top: 25px;">
+                            <h4 style="color: var(--deep-sage); font-family: 'Libre Baskerville', serif; margin-bottom: 15px;">Nutrition Information (Optional)</h4>
+                            <div class="nutrition-grid">
+                                <div class="form-group">
+                                    <label for="calories">Calories</label>
+                                    <input type="number" id="calories" class="form-control" placeholder="per serving">
+                                </div>
+                                <div class="form-group">
+                                    <label for="protein">Protein (g)</label>
+                                    <input type="number" id="protein" class="form-control" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="carbs">Carbs (g)</label>
+                                    <input type="number" id="carbs" class="form-control" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="fat">Fat (g)</label>
+                                    <input type="number" id="fat" class="form-control" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="fiber">Fiber (g)</label>
+                                    <input type="number" id="fiber" class="form-control" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sugar">Sugar (g)</label>
+                                    <input type="number" id="sugar" class="form-control" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sodium">Sodium (mg)</label>
+                                    <input type="number" id="sodium" class="form-control" step="0.1">
                                 </div>
                             </div>
                         </div>
@@ -1033,6 +1353,8 @@
                 this.recipes = this.loadRecipes();
                 this.currentEditId = null;
                 this.initializeEventListeners();
+                this.initializeRatingSystem();
+                this.initializePhotoPreview();
                 this.renderRecipes();
             }
 
@@ -1098,9 +1420,14 @@
 
                 try {
                     // Use setTimeout to allow UI to update
-                    const processedRecipe = await new Promise(resolve => {
-                        setTimeout(() => {
-                            resolve(this.processRecipeContent(title, content));
+                    const processedRecipe = await new Promise(async resolve => {
+                        setTimeout(async () => {
+                            const recipe = this.processRecipeContent(title, content);
+                            // Handle photo data asynchronously
+                            if (recipe.photo) {
+                                recipe.photo = await this.getPhotoDataSync();
+                            }
+                            resolve(recipe);
                         }, 10);
                     });
                     
@@ -1138,7 +1465,23 @@
                     cuisine: document.getElementById('cuisine').value,
                     difficulty: document.getElementById('difficulty').value,
                     cookTimeCategory: document.getElementById('cookTime').value,
-                    dietary: this.getSelectedDietaryRestrictions()
+                    dietary: this.getSelectedDietaryRestrictions(),
+                    // New features
+                    rating: 0,
+                    isFavorite: false,
+                    photo: null,
+                    nutrition: {
+                        calories: '',
+                        protein: '',
+                        carbs: '',
+                        fat: '',
+                        fiber: '',
+                        sugar: '',
+                        sodium: ''
+                    },
+                    videoUrl: '',
+                    relatedRecipes: [],
+                    notes: ''
                 };
 
                 // Auto-detect categories if not already set
@@ -1160,6 +1503,24 @@
                 if (!recipe.dietary || recipe.dietary.length === 0) {
                     recipe.dietary = this.detectDietaryRestrictions(content);
                 }
+
+                // Get additional features from form
+                recipe.rating = this.getCurrentRating();
+                recipe.isFavorite = document.getElementById('isFavorite').checked;
+                recipe.photo = this.getPhotoData();
+                recipe.videoUrl = document.getElementById('videoUrl').value.trim();
+                recipe.notes = document.getElementById('recipeNotes').value.trim();
+                
+                // Get nutrition information
+                recipe.nutrition = {
+                    calories: document.getElementById('calories').value || '',
+                    protein: document.getElementById('protein').value || '',
+                    carbs: document.getElementById('carbs').value || '',
+                    fat: document.getElementById('fat').value || '',
+                    fiber: document.getElementById('fiber').value || '',
+                    sugar: document.getElementById('sugar').value || '',
+                    sodium: document.getElementById('sodium').value || ''
+                };
 
                 // Quick extraction - only process if content is reasonable length
                 if (content.length > 50000) {
@@ -1322,6 +1683,28 @@
                             const checkbox = document.querySelector(`input[value="${diet}"]`);
                             if (checkbox) checkbox.checked = true;
                         });
+                    }
+                    
+                    // Populate additional features
+                    if (recipe.rating) this.setRating(recipe.rating);
+                    if (recipe.isFavorite) document.getElementById('isFavorite').checked = true;
+                    if (recipe.videoUrl) document.getElementById('videoUrl').value = recipe.videoUrl;
+                    if (recipe.notes) document.getElementById('recipeNotes').value = recipe.notes;
+                    
+                    // Populate nutrition information
+                    if (recipe.nutrition) {
+                        Object.keys(recipe.nutrition).forEach(key => {
+                            const field = document.getElementById(key);
+                            if (field && recipe.nutrition[key]) {
+                                field.value = recipe.nutrition[key];
+                            }
+                        });
+                    }
+                    
+                    // Handle photo (if exists)
+                    if (recipe.photo) {
+                        const photoPreview = document.getElementById('photoPreview');
+                        photoPreview.innerHTML = `<img src="${recipe.photo}" class="photo-preview" alt="Recipe preview">`;
                     }
                     
                     this.currentEditId = id;
@@ -1702,6 +2085,100 @@
                 }
             }
 
+            // New Feature Helper Methods
+            getCurrentRating() {
+                const activeStars = document.querySelectorAll('.star.active');
+                return activeStars.length;
+            }
+
+            getPhotoData() {
+                const photoInput = document.getElementById('recipePhoto');
+                if (photoInput.files && photoInput.files[0]) {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(photoInput.files[0]);
+                    });
+                }
+                return null;
+            }
+
+            async getPhotoDataSync() {
+                const photoInput = document.getElementById('recipePhoto');
+                if (photoInput.files && photoInput.files[0]) {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(photoInput.files[0]);
+                    });
+                }
+                return null;
+            }
+
+            initializeRatingSystem() {
+                const stars = document.querySelectorAll('.star');
+                const ratingText = document.getElementById('ratingText');
+                
+                stars.forEach((star, index) => {
+                    star.addEventListener('click', () => {
+                        const rating = index + 1;
+                        this.setRating(rating);
+                    });
+                    
+                    star.addEventListener('mouseenter', () => {
+                        this.highlightStars(index + 1);
+                    });
+                });
+                
+                document.getElementById('starRating').addEventListener('mouseleave', () => {
+                    this.highlightStars(this.getCurrentRating());
+                });
+            }
+
+            setRating(rating) {
+                const stars = document.querySelectorAll('.star');
+                const ratingText = document.getElementById('ratingText');
+                
+                stars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('active');
+                    }
+                });
+                
+                const ratingLabels = ['No rating', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+                ratingText.textContent = ratingLabels[rating];
+            }
+
+            highlightStars(rating) {
+                const stars = document.querySelectorAll('.star');
+                stars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.style.color = '#ffd700';
+                    } else {
+                        star.style.color = '#ddd';
+                    }
+                });
+            }
+
+            initializePhotoPreview() {
+                const photoInput = document.getElementById('recipePhoto');
+                const photoPreview = document.getElementById('photoPreview');
+                
+                photoInput.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            photoPreview.innerHTML = `<img src="${e.target.result}" class="photo-preview" alt="Recipe preview">`;
+                        };
+                        reader.readAsDataURL(e.target.files[0]);
+                    } else {
+                        photoPreview.innerHTML = '';
+                    }
+                });
+            }
+
             renderCategories() {
                 const container = document.getElementById('categoriesContainer');
                 
@@ -1996,8 +2473,17 @@
                     // Build category tags
                     const categoryTags = this.buildCategoryTags(recipe);
                     
+                    // Build additional features display
+                    const photoDisplay = recipe.photo ? `<img src="${recipe.photo}" class="recipe-photo" alt="${this.escapeHtml(recipe.title)}">` : '';
+                    const ratingDisplay = recipe.rating > 0 ? `<div class="recipe-rating"><span class="stars">${'★'.repeat(recipe.rating)}</span><span>(${recipe.rating}/5)</span></div>` : '';
+                    const favoriteDisplay = recipe.isFavorite ? '<div class="recipe-favorite">⭐</div>' : '';
+                    const videoDisplay = recipe.videoUrl ? '<span class="recipe-video">📹 Video</span>' : '';
+                    
                     card.innerHTML = `
+                        ${favoriteDisplay}
+                        ${photoDisplay}
                         <h3>${this.escapeHtml(recipe.title)}</h3>
+                        ${ratingDisplay}
                         <div class="recipe-categories">
                             ${categoryTags}
                         </div>
@@ -2005,6 +2491,7 @@
                             ${recipe.servings ? `<span>${this.escapeHtml(recipe.servings)}</span>` : ''}
                             ${recipe.prepTime ? `<span>${this.escapeHtml(recipe.prepTime)}</span>` : ''}
                             ${recipe.cookTime ? `<span>${this.escapeHtml(recipe.cookTime)}</span>` : ''}
+                            ${videoDisplay}
                         </div>
                         <div class="recipe-preview">${this.escapeHtml(preview)}</div>
                         <div class="recipe-actions">
@@ -2053,6 +2540,14 @@
                 document.getElementById('recipeForm').reset();
                 // Clear all checkboxes
                 document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                // Clear rating
+                this.setRating(0);
+                // Clear photo preview
+                document.getElementById('photoPreview').innerHTML = '';
+                // Clear nutrition fields
+                ['calories', 'protein', 'carbs', 'fat', 'fiber', 'sugar', 'sodium'].forEach(field => {
+                    document.getElementById(field).value = '';
+                });
                 this.currentEditId = null;
             }
 
