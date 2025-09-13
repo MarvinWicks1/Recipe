@@ -3819,9 +3819,13 @@
             }
 
             importFromUrl() {
+                alert('DEBUG: importFromUrl function called');
+                
                 const url = document.getElementById('socialMediaUrl').value.trim();
+                alert('DEBUG: URL value = "' + url + '"');
                 
                 if (!url) {
+                    alert('DEBUG: No URL entered, showing error message');
                     this.showMessage('Please enter a URL', 'error');
                     return;
                 }
@@ -3829,23 +3833,32 @@
                 // Validate URL format
                 try {
                     new URL(url);
+                    alert('DEBUG: URL validation passed');
                 } catch (e) {
+                    alert('DEBUG: URL validation failed: ' + e.message);
                     this.showMessage('Please enter a valid URL (e.g., https://example.com)', 'error');
                     return;
                 }
                 
+                alert('DEBUG: Starting loading and timeout');
                 this.showLoading('Importing recipe from social media...');
                 
                 // Simulate social media import with realistic delay
                 setTimeout(() => {
+                    alert('DEBUG: Timeout callback executed');
                     try {
                         const domain = new URL(url).hostname;
+                        alert('DEBUG: Domain extracted = ' + domain);
                         const importedRecipe = this.createSocialMediaRecipe(url, domain);
+                        alert('DEBUG: Recipe created successfully');
                         
                         // Show import preview modal
+                        alert('DEBUG: About to call showSocialMediaImportPreview');
                         this.showSocialMediaImportPreview(importedRecipe);
                         this.hideLoading();
+                        alert('DEBUG: Modal should be displayed now');
                     } catch (error) {
+                        alert('DEBUG: Error in timeout callback: ' + error.message);
                         this.hideLoading();
                         this.showMessage('Error importing from URL: ' + error.message, 'error');
                     }
@@ -3973,9 +3986,12 @@ Please edit this recipe to add:
             }
 
             showSocialMediaImportPreview(recipe) {
+                alert('DEBUG: showSocialMediaImportPreview called with recipe: ' + recipe.title);
+                
                 // Remove any existing modal first
                 const existingModal = document.getElementById('socialMediaImportModal');
                 if (existingModal) {
+                    alert('DEBUG: Removing existing modal');
                     existingModal.remove();
                 }
                 
@@ -3991,6 +4007,8 @@ Please edit this recipe to add:
                 modal.style.height = '100%';
                 modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
                 modal.style.zIndex = '10000';
+                
+                alert('DEBUG: Modal element created with styles applied');
                 
                 modal.innerHTML = `
                     <div class="modal-content" style="max-width: 600px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--warm-white); padding: 20px; border-radius: 15px; box-shadow: 0 8px 32px var(--shadow);">
@@ -4013,10 +4031,14 @@ Please edit this recipe to add:
                 `;
 
                 document.body.appendChild(modal);
+                alert('DEBUG: Modal appended to document body');
+                
                 this.currentSocialMediaRecipe = recipe;
+                alert('DEBUG: currentSocialMediaRecipe set');
                 
                 // Force a reflow to ensure the modal is visible
                 modal.offsetHeight;
+                alert('DEBUG: Modal should now be visible. Check if you can see it on screen.');
             }
 
             editSocialMediaRecipe() {
@@ -4049,8 +4071,10 @@ Please edit this recipe to add:
 
             // Test social media import function
             testSocialMediaImport() {
+                alert('DEBUG: testSocialMediaImport called');
                 // Pre-fill with a test URL
                 document.getElementById('socialMediaUrl').value = 'https://instagram.com/p/example-recipe';
+                alert('DEBUG: URL field filled with test URL');
                 this.importFromUrl();
             }
 
