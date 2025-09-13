@@ -731,7 +731,12 @@
 
                     <!-- Category Selection Section -->
                     <div class="category-section">
-                        <h3 style="color: var(--deep-sage); font-family: 'Libre Baskerville', serif; margin-bottom: 20px; font-size: 1.3rem;">Recipe Categories</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="color: var(--deep-sage); font-family: 'Libre Baskerville', serif; font-size: 1.3rem; margin: 0;">Recipe Categories</h3>
+                            <button type="button" id="autoDetectBtn" class="btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">
+                                🤖 Auto-Detect
+                            </button>
+                        </div>
                         
                         <div class="category-grid">
                             <div class="form-group">
@@ -1048,6 +1053,9 @@
                 document.getElementById('clearFilters').addEventListener('click', () => this.clearFilters());
                 document.getElementById('sortSelect').addEventListener('change', (e) => this.handleSort(e.target.value));
 
+                // Auto-detect categories
+                document.getElementById('autoDetectBtn').addEventListener('click', () => this.autoDetectCategories());
+
                 // Modal
                 document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
                 document.getElementById('recipeModal').addEventListener('click', (e) => {
@@ -1132,6 +1140,26 @@
                     cookTimeCategory: document.getElementById('cookTime').value,
                     dietary: this.getSelectedDietaryRestrictions()
                 };
+
+                // Auto-detect categories if not already set
+                if (!recipe.type) {
+                    recipe.type = this.detectRecipeType(title, content);
+                }
+                if (!recipe.mainIngredient) {
+                    recipe.mainIngredient = this.detectMainIngredient(content);
+                }
+                if (!recipe.cuisine) {
+                    recipe.cuisine = this.detectCuisine(title, content);
+                }
+                if (!recipe.difficulty) {
+                    recipe.difficulty = this.detectDifficulty(content);
+                }
+                if (!recipe.cookTimeCategory) {
+                    recipe.cookTimeCategory = this.detectCookingTime(content);
+                }
+                if (!recipe.dietary || recipe.dietary.length === 0) {
+                    recipe.dietary = this.detectDietaryRestrictions(content);
+                }
 
                 // Quick extraction - only process if content is reasonable length
                 if (content.length > 50000) {
@@ -1330,6 +1358,348 @@
 
             formatCategoryValue(value) {
                 return value.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            }
+
+            // Intelligent Category Detection Methods
+            detectRecipeType(title, content) {
+                const text = (title + ' ' + content).toLowerCase();
+                
+                // Breakfast patterns
+                if (/\b(breakfast|pancake|waffle|omelet|omelette|french toast|granola|cereal|muffin|bagel|toast|eggs|bacon|sausage|hash|frittata)\b/.test(text)) {
+                    return 'breakfast';
+                }
+                
+                // Appetizer patterns
+                if (/\b(appetizer|starter|hors d'oeuvre|dip|spread|bruschetta|crostini|canapé|finger food|snack|nibble)\b/.test(text)) {
+                    return 'appetizer';
+                }
+                
+                // Soup patterns
+                if (/\b(soup|broth|bisque|chowder|gazpacho|consommé|stew|gumbo|chili)\b/.test(text)) {
+                    return 'soup';
+                }
+                
+                // Salad patterns
+                if (/\b(salad|lettuce|greens|caesar|cobb|niçoise|caprese|coleslaw|slaw)\b/.test(text)) {
+                    return 'salad';
+                }
+                
+                // Dessert patterns
+                if (/\b(dessert|cake|pie|tart|cookie|brownie|ice cream|pudding|mousse|cheesecake|truffle|candy|sweet|chocolate|sugar)\b/.test(text)) {
+                    return 'dessert';
+                }
+                
+                // Beverage patterns
+                if (/\b(drink|beverage|smoothie|juice|tea|coffee|cocktail|mocktail|punch|lemonade|soda)\b/.test(text)) {
+                    return 'beverage';
+                }
+                
+                // Bread patterns
+                if (/\b(bread|loaf|roll|bun|bagel|pretzel|flatbread|naan|pita|focaccia|sourdough)\b/.test(text)) {
+                    return 'bread';
+                }
+                
+                // Sauce patterns
+                if (/\b(sauce|dressing|marinade|glaze|syrup|reduction|gravy|pesto|aioli|mayo|ketchup|mustard)\b/.test(text)) {
+                    return 'sauce';
+                }
+                
+                // Main course (default for substantial recipes)
+                if (/\b(beef|chicken|pork|fish|seafood|pasta|rice|quinoa|beans|lentils|tofu|tempeh|main|dinner|lunch)\b/.test(text)) {
+                    return 'main-course';
+                }
+                
+                // Side dish patterns
+                if (/\b(side|accompaniment|vegetable|potato|fries|mashed|roasted|steamed|grilled|sautéed)\b/.test(text)) {
+                    return 'side-dish';
+                }
+                
+                return 'main-course'; // Default fallback
+            }
+
+            detectMainIngredient(content) {
+                const text = content.toLowerCase();
+                
+                // Protein detection
+                if (/\b(chicken|poultry|hen|breast|thigh|wing|drumstick)\b/.test(text)) return 'chicken';
+                if (/\b(beef|steak|ground beef|hamburger|roast|brisket|ribs)\b/.test(text)) return 'beef';
+                if (/\b(pork|ham|bacon|sausage|chop|tenderloin|ribs)\b/.test(text)) return 'pork';
+                if (/\b(fish|salmon|tuna|cod|halibut|trout|bass|mackerel|sardine)\b/.test(text)) return 'fish';
+                if (/\b(seafood|shrimp|prawn|crab|lobster|scallop|mussel|oyster|clam|squid|octopus)\b/.test(text)) return 'seafood';
+                
+                // Starch detection
+                if (/\b(pasta|noodle|spaghetti|penne|fettuccine|macaroni|lasagna|ravioli)\b/.test(text)) return 'pasta';
+                if (/\b(rice|basmati|jasmine|brown rice|wild rice|risotto|arroz)\b/.test(text)) return 'rice';
+                if (/\b(potato|potatoes|sweet potato|yam|mashed|fries|hash)\b/.test(text)) return 'potatoes';
+                
+                // Other proteins
+                if (/\b(egg|eggs|omelet|omelette|frittata|quiche)\b/.test(text)) return 'eggs';
+                if (/\b(cheese|cheddar|mozzarella|parmesan|feta|goat cheese|ricotta)\b/.test(text)) return 'cheese';
+                if (/\b(bean|beans|lentil|lentils|chickpea|black bean|kidney bean|pinto bean)\b/.test(text)) return 'beans';
+                if (/\b(nut|nuts|almond|walnut|pecan|cashew|pistachio|peanut)\b/.test(text)) return 'nuts';
+                
+                // Fruits and vegetables
+                if (/\b(fruit|apple|banana|berry|strawberry|blueberry|orange|lemon|lime|grape|peach|pear)\b/.test(text)) return 'fruits';
+                if (/\b(vegetable|vegetables|carrot|onion|garlic|tomato|pepper|broccoli|spinach|lettuce|celery|cucumber)\b/.test(text)) return 'vegetables';
+                
+                return 'other';
+            }
+
+            detectCuisine(title, content) {
+                const text = (title + ' ' + content).toLowerCase();
+                
+                // Italian patterns
+                if (/\b(italian|pasta|pizza|risotto|bruschetta|parmesan|mozzarella|basil|oregano|marinara|alfredo|carbonara|pesto|gnocchi|ravioli|lasagna)\b/.test(text)) {
+                    return 'italian';
+                }
+                
+                // Mexican patterns
+                if (/\b(mexican|taco|burrito|enchilada|quesadilla|salsa|guacamole|jalapeño|cilantro|cumin|chili|tortilla|fajita|nacho)\b/.test(text)) {
+                    return 'mexican';
+                }
+                
+                // Chinese patterns
+                if (/\b(chinese|soy sauce|ginger|sesame|wok|stir fry|lo mein|fried rice|dumpling|wonton|bok choy|hoisin|oyster sauce)\b/.test(text)) {
+                    return 'chinese';
+                }
+                
+                // Indian patterns
+                if (/\b(indian|curry|masala|garam|tandoor|naan|basmati|cardamom|cumin|coriander|turmeric|ginger|garlic|chili|dal|lentil)\b/.test(text)) {
+                    return 'indian';
+                }
+                
+                // French patterns
+                if (/\b(french|herbes de provence|thyme|rosemary|tarragon|dijon|béchamel|hollandaise|ratatouille|coq au vin|bouillabaisse)\b/.test(text)) {
+                    return 'french';
+                }
+                
+                // Thai patterns
+                if (/\b(thai|lemongrass|galangal|fish sauce|coconut milk|curry paste|pad thai|tom yum|basil|mint|cilantro|kaffir lime)\b/.test(text)) {
+                    return 'thai';
+                }
+                
+                // Japanese patterns
+                if (/\b(japanese|sushi|sashimi|miso|soy sauce|wasabi|ginger|teriyaki|tempura|ramen|udon|mirin|sake)\b/.test(text)) {
+                    return 'japanese';
+                }
+                
+                // Mediterranean patterns
+                if (/\b(mediterranean|olive oil|feta|olives|sun dried tomato|artichoke|hummus|tzatziki|oregano|basil|lemon|garlic)\b/.test(text)) {
+                    return 'mediterranean';
+                }
+                
+                // Middle Eastern patterns
+                if (/\b(middle eastern|hummus|tahini|pita|falafel|sumac|za'atar|cardamom|cinnamon|pistachio|pomegranate|yogurt)\b/.test(text)) {
+                    return 'middle-eastern';
+                }
+                
+                // Korean patterns
+                if (/\b(korean|kimchi|gochujang|sesame oil|soy sauce|garlic|ginger|scallion|bulgogi|bibimbap|korean bbq)\b/.test(text)) {
+                    return 'korean';
+                }
+                
+                // Greek patterns
+                if (/\b(greek|feta|olive|oregano|lemon|garlic|tzatziki|hummus|pita|spanakopita|moussaka|baklava)\b/.test(text)) {
+                    return 'greek';
+                }
+                
+                // Spanish patterns
+                if (/\b(spanish|paella|saffron|chorizo|jamón|sherry|olive oil|garlic|paprika|sangria|tapas|gazpacho)\b/.test(text)) {
+                    return 'spanish';
+                }
+                
+                // German patterns
+                if (/\b(german|sauerkraut|bratwurst|beer|mustard|caraway|dill|potato|cabbage|pretzel|schnitzel)\b/.test(text)) {
+                    return 'german';
+                }
+                
+                return 'american'; // Default fallback
+            }
+
+            detectDifficulty(content) {
+                const text = content.toLowerCase();
+                
+                // Easy patterns
+                if (/\b(simple|easy|quick|basic|minimal|few ingredients|no cook|raw|mix|stir|combine|toss|blend)\b/.test(text)) {
+                    return 'easy';
+                }
+                
+                // Hard patterns
+                if (/\b(complex|advanced|difficult|challenging|multi step|layered|temper|sous vide|ferment|proof|knead|fold|whip|emulsify|caramelize|braise|confit)\b/.test(text)) {
+                    return 'hard';
+                }
+                
+                // Medium patterns
+                if (/\b(medium|moderate|intermediate|saute|roast|bake|grill|fry|simmer|reduce|marinate|brine|rest|chill)\b/.test(text)) {
+                    return 'medium';
+                }
+                
+                // Time-based difficulty
+                const timeWords = text.match(/\b(\d+)\s*(minute|hour|day)s?\b/g);
+                if (timeWords) {
+                    const totalMinutes = timeWords.reduce((total, time) => {
+                        const match = time.match(/(\d+)\s*(minute|hour|day)/);
+                        if (match) {
+                            const num = parseInt(match[1]);
+                            const unit = match[2];
+                            if (unit === 'hour') return total + (num * 60);
+                            if (unit === 'day') return total + (num * 1440);
+                            return total + num;
+                        }
+                        return total;
+                    }, 0);
+                    
+                    if (totalMinutes <= 30) return 'easy';
+                    if (totalMinutes <= 120) return 'medium';
+                    return 'hard';
+                }
+                
+                return 'medium'; // Default fallback
+            }
+
+            detectCookingTime(content) {
+                const text = content.toLowerCase();
+                
+                // Extract time information
+                const timeMatches = text.match(/\b(\d+)\s*(minute|hour|day)s?\b/g);
+                if (!timeMatches) return '30-60'; // Default fallback
+                
+                let totalMinutes = 0;
+                timeMatches.forEach(time => {
+                    const match = time.match(/(\d+)\s*(minute|hour|day)/);
+                    if (match) {
+                        const num = parseInt(match[1]);
+                        const unit = match[2];
+                        if (unit === 'hour') totalMinutes += (num * 60);
+                        else if (unit === 'day') totalMinutes += (num * 1440);
+                        else totalMinutes += num;
+                    }
+                });
+                
+                if (totalMinutes <= 15) return 'under-15';
+                if (totalMinutes <= 30) return '15-30';
+                if (totalMinutes <= 60) return '30-60';
+                if (totalMinutes <= 120) return '1-2-hours';
+                return 'over-2-hours';
+            }
+
+            detectDietaryRestrictions(content) {
+                const text = content.toLowerCase();
+                const dietary = [];
+                
+                // Vegetarian detection
+                if (/\b(vegetarian|veggie|no meat|plant based|vegetable|veggie)\b/.test(text) && 
+                    !/\b(meat|chicken|beef|pork|fish|seafood|bacon|ham|sausage)\b/.test(text)) {
+                    dietary.push('vegetarian');
+                }
+                
+                // Vegan detection
+                if (/\b(vegan|no dairy|no eggs|plant based|dairy free|egg free)\b/.test(text) && 
+                    !/\b(meat|chicken|beef|pork|fish|seafood|dairy|milk|cheese|butter|cream|egg)\b/.test(text)) {
+                    dietary.push('vegan');
+                }
+                
+                // Gluten-free detection
+                if (/\b(gluten free|gluten-free|no gluten|gf)\b/.test(text) && 
+                    !/\b(wheat|flour|bread|pasta|barley|rye|oats)\b/.test(text)) {
+                    dietary.push('gluten-free');
+                }
+                
+                // Dairy-free detection
+                if (/\b(dairy free|dairy-free|no dairy|lactose free|lactose-free)\b/.test(text) && 
+                    !/\b(milk|cheese|butter|cream|yogurt|dairy)\b/.test(text)) {
+                    dietary.push('dairy-free');
+                }
+                
+                // Keto detection
+                if (/\b(keto|ketogenic|low carb|low carb|no sugar|sugar free)\b/.test(text) && 
+                    !/\b(bread|pasta|rice|potato|sugar|honey|maple syrup)\b/.test(text)) {
+                    dietary.push('keto');
+                }
+                
+                // Paleo detection
+                if (/\b(paleo|paleolithic|primal|no grains|no dairy|no legumes)\b/.test(text) && 
+                    !/\b(grains|dairy|legumes|beans|lentils|soy)\b/.test(text)) {
+                    dietary.push('paleo');
+                }
+                
+                return dietary;
+            }
+
+            autoDetectCategories() {
+                const title = document.getElementById('recipeTitle').value.trim();
+                const content = document.getElementById('recipeText').value.trim();
+                
+                if (!title && !content) {
+                    this.showMessage('Please enter a recipe title and content first!', 'error');
+                    return;
+                }
+                
+                // Show loading
+                this.showLoading('Analyzing recipe content...');
+                
+                // Simulate processing time for better UX
+                setTimeout(() => {
+                    // Auto-detect categories
+                    const detectedType = this.detectRecipeType(title, content);
+                    const detectedIngredient = this.detectMainIngredient(content);
+                    const detectedCuisine = this.detectCuisine(title, content);
+                    const detectedDifficulty = this.detectDifficulty(content);
+                    const detectedTime = this.detectCookingTime(content);
+                    const detectedDietary = this.detectDietaryRestrictions(content);
+                    
+                    // Update form fields
+                    if (detectedType) {
+                        document.getElementById('recipeType').value = detectedType;
+                        this.highlightField('recipeType');
+                    }
+                    if (detectedIngredient) {
+                        document.getElementById('mainIngredient').value = detectedIngredient;
+                        this.highlightField('mainIngredient');
+                    }
+                    if (detectedCuisine) {
+                        document.getElementById('cuisine').value = detectedCuisine;
+                        this.highlightField('cuisine');
+                    }
+                    if (detectedDifficulty) {
+                        document.getElementById('difficulty').value = detectedDifficulty;
+                        this.highlightField('difficulty');
+                    }
+                    if (detectedTime) {
+                        document.getElementById('cookTime').value = detectedTime;
+                        this.highlightField('cookTime');
+                    }
+                    
+                    // Update dietary checkboxes
+                    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                    detectedDietary.forEach(diet => {
+                        const checkbox = document.querySelector(`input[value="${diet}"]`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            this.highlightField(checkbox);
+                        }
+                    });
+                    
+                    this.hideLoading();
+                    
+                    const detectedCount = [detectedType, detectedIngredient, detectedCuisine, detectedDifficulty, detectedTime].filter(Boolean).length + detectedDietary.length;
+                    this.showMessage(`🤖 Auto-detected ${detectedCount} categories!`, 'success');
+                    
+                }, 1000);
+            }
+
+            highlightField(fieldId) {
+                const field = typeof fieldId === 'string' ? document.getElementById(fieldId) : fieldId;
+                if (field) {
+                    field.style.borderColor = 'var(--sage)';
+                    field.style.boxShadow = '0 0 0 3px rgba(156, 175, 136, 0.3)';
+                    
+                    // Remove highlight after 3 seconds
+                    setTimeout(() => {
+                        field.style.borderColor = '';
+                        field.style.boxShadow = '';
+                    }, 3000);
+                }
             }
 
             renderCategories() {
