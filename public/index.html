@@ -1332,6 +1332,161 @@
             transition: width 0.3s ease;
         }
 
+        /* Rich Text Editor Styles */
+        .rich-text-toolbar {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+            background: var(--light-sage);
+            border: 1px solid var(--sage);
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            flex-wrap: wrap;
+        }
+
+        .format-btn {
+            background: white;
+            border: 1px solid var(--sage);
+            color: var(--sage);
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Crimson Text', serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 35px;
+        }
+
+        .format-btn:hover {
+            background: var(--sage);
+            color: white;
+        }
+
+        .format-btn.active {
+            background: var(--sage);
+            color: white;
+        }
+
+        .rich-text-editor {
+            min-height: 200px;
+            padding: 15px;
+            border: 1px solid var(--sage);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            background: white;
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            line-height: 1.6;
+            outline: none;
+            overflow-y: auto;
+        }
+
+        .rich-text-editor:empty:before {
+            content: attr(data-placeholder);
+            color: var(--soft-brown);
+            font-style: italic;
+        }
+
+        .rich-text-editor:focus {
+            border-color: var(--sage);
+            box-shadow: 0 0 0 3px rgba(156, 175, 136, 0.1);
+        }
+
+        .rich-text-editor p {
+            margin: 0 0 10px 0;
+        }
+
+        .rich-text-editor ul, .rich-text-editor ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .rich-text-editor li {
+            margin: 5px 0;
+        }
+
+        .rich-text-editor strong, .rich-text-editor b {
+            font-weight: bold;
+        }
+
+        .rich-text-editor em, .rich-text-editor i {
+            font-style: italic;
+        }
+
+        .rich-text-editor u {
+            text-decoration: underline;
+        }
+
+        .rich-text-editor h1, .rich-text-editor h2, .rich-text-editor h3 {
+            font-family: 'Libre Baskerville', serif;
+            color: var(--deep-sage);
+            margin: 15px 0 10px 0;
+        }
+
+        .rich-text-editor h1 {
+            font-size: 1.5rem;
+        }
+
+        .rich-text-editor h2 {
+            font-size: 1.3rem;
+        }
+
+        .rich-text-editor h3 {
+            font-size: 1.1rem;
+        }
+
+        /* Recipe Display with Rich Text */
+        .recipe-content {
+            font-family: 'Crimson Text', serif;
+            line-height: 1.6;
+            color: var(--deep-sage);
+        }
+
+        .recipe-content p {
+            margin: 0 0 15px 0;
+        }
+
+        .recipe-content ul, .recipe-content ol {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .recipe-content li {
+            margin: 8px 0;
+        }
+
+        .recipe-content strong, .recipe-content b {
+            font-weight: bold;
+            color: var(--sage);
+        }
+
+        .recipe-content em, .recipe-content i {
+            font-style: italic;
+        }
+
+        .recipe-content u {
+            text-decoration: underline;
+        }
+
+        .recipe-content h1, .recipe-content h2, .recipe-content h3 {
+            font-family: 'Libre Baskerville', serif;
+            color: var(--deep-sage);
+            margin: 20px 0 15px 0;
+        }
+
+        .recipe-content h1 {
+            font-size: 1.5rem;
+        }
+
+        .recipe-content h2 {
+            font-size: 1.3rem;
+        }
+
+        .recipe-content h3 {
+            font-size: 1.1rem;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2.5rem;
@@ -1385,8 +1540,18 @@
 
                     <div class="form-group">
                         <label for="recipeText">Recipe Content</label>
-                        <textarea id="recipeText" class="form-control" rows="12" 
-                            placeholder="Paste your recipe here... Include ingredients, instructions, cooking times, etc. I'll help organize it!" required></textarea>
+                        <div class="rich-text-toolbar">
+                            <button type="button" class="format-btn" data-command="bold" title="Bold">B</button>
+                            <button type="button" class="format-btn" data-command="italic" title="Italic">I</button>
+                            <button type="button" class="format-btn" data-command="underline" title="Underline">U</button>
+                            <button type="button" class="format-btn" data-command="insertUnorderedList" title="Bullet List">•</button>
+                            <button type="button" class="format-btn" data-command="insertOrderedList" title="Numbered List">1.</button>
+                            <button type="button" class="format-btn" data-command="justifyLeft" title="Align Left">⬅</button>
+                            <button type="button" class="format-btn" data-command="justifyCenter" title="Center">↔</button>
+                            <button type="button" class="format-btn" data-command="justifyRight" title="Align Right">➡</button>
+                            <button type="button" class="format-btn" data-command="removeFormat" title="Clear Formatting">Clear</button>
+                        </div>
+                        <div id="recipeText" class="rich-text-editor" contenteditable="true" data-placeholder="Paste your recipe here... Include ingredients, instructions, cooking times, etc. I'll help organize it!"></div>
                     </div>
 
                     <!-- Category Selection Section -->
@@ -1901,6 +2066,7 @@
                 this.initializePhotoPreview();
                 this.initializeFileImport();
                 this.initializeShoppingList();
+                this.initializeRichTextEditor();
                 this.renderRecipes();
                 this.handleSharedRecipe();
             }
@@ -1956,7 +2122,7 @@
             async handleFormSubmit(e) {
                 e.preventDefault();
                 const title = document.getElementById('recipeTitle').value.trim();
-                const content = document.getElementById('recipeText').value.trim();
+                const content = this.getRichTextContent();
 
                 if (!title || !content) return;
 
@@ -2214,7 +2380,7 @@
                 const recipe = this.recipes.find(r => r.id === id);
                 if (recipe) {
                     document.getElementById('recipeTitle').value = recipe.title;
-                    document.getElementById('recipeText').value = recipe.content;
+                    this.setRichTextContent(recipe.content);
                     
                     // Populate category fields
                     if (recipe.type) document.getElementById('recipeType').value = recipe.type;
@@ -3494,9 +3660,9 @@
                     content += '</ol>';
                 }
                 
-                // If no structured data, show original content
+                // If no structured data, show original content with rich text support
                 if (recipe.ingredients.length === 0 && recipe.instructions.length === 0) {
-                    content += '<div style="white-space: pre-line;">' + recipe.content + '</div>';
+                    content += '<div class="recipe-content">' + recipe.content + '</div>';
                 }
                 
                 document.getElementById('modalContent').innerHTML = content;
@@ -3626,7 +3792,11 @@
                     const card = document.createElement('div');
                     card.className = 'recipe-card';
                     
-                    const preview = recipe.content.substring(0, 150) + (recipe.content.length > 150 ? '...' : '');
+                    // Create preview from HTML content
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = recipe.content;
+                    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+                    const preview = textContent.substring(0, 150) + (textContent.length > 150 ? '...' : '');
                     
                     // Build category tags
                     const categoryTags = this.buildCategoryTags(recipe);
@@ -3651,7 +3821,7 @@
                             ${recipe.cookTime ? `<span>${this.escapeHtml(recipe.cookTime)}</span>` : ''}
                             ${videoDisplay}
                         </div>
-                        <div class="recipe-preview">${this.escapeHtml(preview)}</div>
+                        <div class="recipe-preview recipe-content">${preview}</div>
                         <div class="recipe-actions">
                             <button class="btn-small btn-edit" data-action="view" data-id="${recipe.id}">View</button>
                             <button class="btn-small btn-edit" data-action="cook" data-id="${recipe.id}">👨‍🍳 Cook</button>
@@ -3710,6 +3880,8 @@
 
             resetForm() {
                 document.getElementById('recipeForm').reset();
+                // Clear rich text editor
+                this.clearRichTextEditor();
                 // Clear all checkboxes
                 document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
                 // Clear rating
@@ -3735,6 +3907,85 @@
 
             saveShoppingList() {
                 localStorage.setItem('recipe-keeper-shopping-list', JSON.stringify(this.shoppingList));
+            }
+
+            // Rich Text Editor Methods
+            initializeRichTextEditor() {
+                const editor = document.getElementById('recipeText');
+                if (!editor) return;
+
+                // Add event listeners for format buttons
+                document.querySelectorAll('.format-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const command = btn.dataset.command;
+                        this.executeFormatCommand(command);
+                        this.updateFormatButtons();
+                    });
+                });
+
+                // Update format buttons on selection change
+                editor.addEventListener('keyup', () => this.updateFormatButtons());
+                editor.addEventListener('mouseup', () => this.updateFormatButtons());
+                editor.addEventListener('focus', () => this.updateFormatButtons());
+
+                // Handle paste events to clean up formatting
+                editor.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                    document.execCommand('insertText', false, text);
+                });
+            }
+
+            executeFormatCommand(command) {
+                const editor = document.getElementById('recipeText');
+                editor.focus();
+
+                if (command === 'removeFormat') {
+                    document.execCommand('removeFormat', false, null);
+                } else {
+                    document.execCommand(command, false, null);
+                }
+            }
+
+            updateFormatButtons() {
+                const editor = document.getElementById('recipeText');
+                if (!editor) return;
+
+                document.querySelectorAll('.format-btn').forEach(btn => {
+                    const command = btn.dataset.command;
+                    let isActive = false;
+
+                    if (command === 'bold' || command === 'italic' || command === 'underline') {
+                        isActive = document.queryCommandState(command);
+                    } else if (command === 'insertUnorderedList' || command === 'insertOrderedList') {
+                        isActive = document.queryCommandState(command);
+                    } else if (command.startsWith('justify')) {
+                        const currentAlign = document.queryCommandValue('justify');
+                        isActive = currentAlign === command.replace('justify', '').toLowerCase();
+                    }
+
+                    btn.classList.toggle('active', isActive);
+                });
+            }
+
+            getRichTextContent() {
+                const editor = document.getElementById('recipeText');
+                return editor ? editor.innerHTML : '';
+            }
+
+            setRichTextContent(html) {
+                const editor = document.getElementById('recipeText');
+                if (editor) {
+                    editor.innerHTML = html;
+                }
+            }
+
+            clearRichTextEditor() {
+                const editor = document.getElementById('recipeText');
+                if (editor) {
+                    editor.innerHTML = '';
+                }
             }
 
             // Shopping List Methods
