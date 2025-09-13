@@ -969,42 +969,62 @@
         }
 
         .btn-social {
-            padding: 12px 16px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-family: 'Crimson Text', serif;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            margin: 8px;
+        }
+
+        .btn-social::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-social:hover::before {
+            left: 100%;
         }
 
         .btn-social.facebook {
-            background: #1877f2;
+            background: linear-gradient(135deg, #1877f2, #42a5f5);
             color: white;
         }
 
         .btn-social.twitter {
-            background: #1da1f2;
+            background: linear-gradient(135deg, #1da1f2, #42a5f5);
             color: white;
         }
 
         .btn-social.whatsapp {
-            background: #25d366;
+            background: linear-gradient(135deg, #25d366, #4caf50);
             color: white;
         }
 
         .btn-social.email {
-            background: var(--terracotta);
+            background: linear-gradient(135deg, var(--terracotta), #ff7043);
             color: white;
         }
 
         .btn-social:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         }
 
         /* Share Modal Styles */
@@ -1702,6 +1722,106 @@
             margin-top: 20px;
         }
 
+        /* Enhanced Import Button Styles */
+        .import-options .btn-primary,
+        .import-options .btn-secondary {
+            background: linear-gradient(135deg, var(--sage), var(--deep-sage));
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 12px rgba(156, 175, 136, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .import-options .btn-secondary {
+            background: linear-gradient(135deg, var(--terracotta), #ff7043);
+        }
+
+        .import-options .btn-primary::before,
+        .import-options .btn-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .import-options .btn-primary:hover::before,
+        .import-options .btn-secondary:hover::before {
+            left: 100%;
+        }
+
+        .import-options .btn-primary:hover,
+        .import-options .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 175, 136, 0.4);
+        }
+
+        .import-options .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(255, 112, 67, 0.4);
+        }
+
+        /* OCR Button Styles */
+        .ocr-options .btn-primary,
+        .ocr-options .btn-secondary {
+            background: linear-gradient(135deg, var(--sage), var(--deep-sage));
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 12px rgba(156, 175, 136, 0.3);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        .ocr-options .btn-secondary {
+            background: linear-gradient(135deg, var(--terracotta), #ff7043);
+        }
+
+        .ocr-options .btn-primary::before,
+        .ocr-options .btn-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .ocr-options .btn-primary:hover::before,
+        .ocr-options .btn-secondary:hover::before {
+            left: 100%;
+        }
+
+        .ocr-options .btn-primary:hover,
+        .ocr-options .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 175, 136, 0.4);
+        }
+
+        .ocr-options .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(255, 112, 67, 0.4);
+        }
+
         /* Camera and Image Styles */
         #cameraVideo, #previewImage {
             box-shadow: 0 4px 15px var(--soft-shadow);
@@ -2166,6 +2286,7 @@
                         <div class="import-options">
                             <input type="url" id="websiteUrl" class="form-control" placeholder="Paste recipe website URL here...">
                             <button class="btn-primary" onclick="recipeKeeper.importFromWebsite()">🌐 Import from Website</button>
+                            <button class="btn-secondary" onclick="recipeKeeper.testImport()" style="margin-top: 10px;">🧪 Test Import (Demo)</button>
                             
                             <div class="import-divider">
                                 <span>or</span>
@@ -2191,6 +2312,7 @@
                             
                             <div class="camera-option">
                                 <button class="btn-secondary" onclick="recipeKeeper.startCameraScan()">📱 Use Camera</button>
+                                <button class="btn-secondary" onclick="recipeKeeper.testOCR()" style="margin-top: 10px;">🧪 Test OCR (Demo)</button>
                             </div>
                         </div>
                     </div>
@@ -4534,6 +4656,14 @@
                     return;
                 }
 
+                // Validate URL format
+                try {
+                    new URL(url);
+                } catch (e) {
+                    this.showMessage('Please enter a valid URL (e.g., https://example.com)', 'error');
+                    return;
+                }
+
                 // Show import modal
                 document.getElementById('websiteImportModal').style.display = 'block';
                 document.getElementById('importStatus').style.display = 'block';
@@ -4543,6 +4673,7 @@
                     // Simulate website analysis (in a real implementation, you'd use a CORS proxy or backend service)
                     await this.analyzeWebsite(url);
                 } catch (error) {
+                    console.error('Import error:', error);
                     this.showMessage('Error importing from website: ' + error.message, 'error');
                     this.closeWebsiteImportModal();
                 }
@@ -4692,8 +4823,21 @@
                 this.currentImportedRecipe = null;
             }
 
+            // Test import function for demo purposes
+            testImport() {
+                // Pre-fill with a test URL
+                document.getElementById('websiteUrl').value = 'https://allrecipes.com/recipe/chocolate-chip-cookies';
+                this.importFromWebsite();
+            }
+
             // OCR Scanning Methods
             startCameraScan() {
+                // Check if camera is supported
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    this.showMessage('Camera not supported on this device. Please use file upload instead.', 'error');
+                    return;
+                }
+
                 document.getElementById('ocrScanModal').style.display = 'block';
                 document.getElementById('cameraContainer').style.display = 'block';
                 document.getElementById('imagePreview').style.display = 'none';
@@ -4715,8 +4859,22 @@
                     const video = document.getElementById('cameraVideo');
                     video.srcObject = stream;
                     this.cameraStream = stream;
+                    
+                    // Show success message
+                    this.showMessage('Camera activated! Position your recipe and click Capture.', 'success');
                 } catch (error) {
-                    this.showMessage('Camera access denied. Please use file upload instead.', 'error');
+                    console.error('Camera error:', error);
+                    let errorMessage = 'Camera access denied. Please use file upload instead.';
+                    
+                    if (error.name === 'NotAllowedError') {
+                        errorMessage = 'Camera permission denied. Please allow camera access and try again.';
+                    } else if (error.name === 'NotFoundError') {
+                        errorMessage = 'No camera found. Please use file upload instead.';
+                    } else if (error.name === 'NotSupportedError') {
+                        errorMessage = 'Camera not supported on this device. Please use file upload instead.';
+                    }
+                    
+                    this.showMessage(errorMessage, 'error');
                     this.closeOCRModal();
                 }
             }
@@ -4833,6 +4991,43 @@ Note: This is simulated OCR text. In a real implementation, this would be the ac
                 this.stopCamera();
                 document.getElementById('ocrScanModal').style.display = 'none';
                 this.currentImageData = null;
+            }
+
+            // Test OCR function for demo purposes
+            testOCR() {
+                // Simulate OCR processing with mock data
+                document.getElementById('ocrScanModal').style.display = 'block';
+                document.getElementById('cameraContainer').style.display = 'none';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('ocrResults').style.display = 'block';
+                
+                // Fill with mock extracted text
+                document.getElementById('extractedText').value = `Grandma's Chocolate Chip Cookies
+
+Ingredients:
+- 2 1/4 cups all-purpose flour
+- 1 tsp baking soda
+- 1 tsp salt
+- 1 cup butter, softened
+- 3/4 cup granulated sugar
+- 3/4 cup packed brown sugar
+- 2 large eggs
+- 2 tsp vanilla extract
+- 2 cups chocolate chips
+
+Instructions:
+1. Preheat oven to 375°F (190°C)
+2. Mix flour, baking soda, and salt in a bowl
+3. Cream butter and sugars until fluffy
+4. Beat in eggs and vanilla
+5. Gradually blend in flour mixture
+6. Stir in chocolate chips
+7. Drop rounded tablespoons onto ungreased cookie sheets
+8. Bake 9-11 minutes until golden brown
+
+Note: This is a demo OCR result. In a real implementation, this would be extracted from your scanned image.`;
+                
+                this.showMessage('🧪 Demo OCR text loaded! You can edit it before creating the recipe.', 'success');
             }
 
             // Initialize OCR file handling
