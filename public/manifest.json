@@ -2,7 +2,7 @@
   "name": "Recipe Keeper",
   "short_name": "Recipe Keeper",
   "description": "A beautiful, rustic recipe keeper app for storing and organizing your favorite recipes",
-  "start_url": "/recipe-keeper.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#faf7f2",
   "theme_color": "#9caf88",
@@ -34,14 +34,14 @@
       "name": "Add Recipe",
       "short_name": "Add",
       "description": "Quickly add a new recipe",
-      "url": "/recipe-keeper.html#add",
+      "url": "/#add",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "View Recipes",
       "short_name": "Recipes", 
       "description": "Browse your recipe collection",
-      "url": "/recipe-keeper.html#recipes",
+      "url": "/#recipes",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ],
