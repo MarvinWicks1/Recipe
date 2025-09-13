@@ -3820,13 +3820,13 @@
             }
 
             importFromUrl() {
-                alert('DEBUG: importFromUrl function called');
+                alert('BUTTON CLICKED');
                 
                 const url = document.getElementById('socialMediaUrl').value.trim();
-                alert('DEBUG: URL value = "' + url + '"');
+                alert('URL: ' + url);
                 
                 if (!url) {
-                    alert('DEBUG: No URL entered, showing error message');
+                    alert('NO URL');
                     this.showMessage('Please enter a URL', 'error');
                     return;
                 }
@@ -3834,32 +3834,29 @@
                 // Validate URL format
                 try {
                     new URL(url);
-                    alert('DEBUG: URL validation passed');
+                    alert('URL OK');
                 } catch (e) {
-                    alert('DEBUG: URL validation failed: ' + e.message);
+                    alert('BAD URL');
                     this.showMessage('Please enter a valid URL (e.g., https://example.com)', 'error');
                     return;
                 }
                 
-                alert('DEBUG: Starting loading and timeout');
+                alert('STARTING');
                 this.showLoading('Importing recipe from social media...');
                 
                 // Simulate social media import with realistic delay
                 setTimeout(() => {
-                    alert('DEBUG: Timeout callback executed');
+                    alert('TIMEOUT');
                     try {
                         const domain = new URL(url).hostname;
-                        alert('DEBUG: Domain extracted = ' + domain);
                         const importedRecipe = this.createSocialMediaRecipe(url, domain);
-                        alert('DEBUG: Recipe created successfully');
                         
                         // Show import preview modal
-                        alert('DEBUG: About to call showSocialMediaImportPreview');
                         this.showSocialMediaImportPreview(importedRecipe);
                         this.hideLoading();
-                        alert('DEBUG: Modal should be displayed now');
+                        alert('DONE');
                     } catch (error) {
-                        alert('DEBUG: Error in timeout callback: ' + error.message);
+                        alert('ERROR: ' + error.message);
                         this.hideLoading();
                         this.showMessage('Error importing from URL: ' + error.message, 'error');
                     }
@@ -4072,10 +4069,10 @@ Please edit this recipe to add:
 
             // Test social media import function
             testSocialMediaImport() {
-                alert('DEBUG: testSocialMediaImport called');
+                alert('TEST CLICKED');
                 // Pre-fill with a test URL
                 document.getElementById('socialMediaUrl').value = 'https://instagram.com/p/example-recipe';
-                alert('DEBUG: URL field filled with test URL');
+                alert('URL FILLED');
                 this.importFromUrl();
             }
 
@@ -5906,13 +5903,13 @@ Note: This is a demo OCR result. In a real implementation, this would be extract
         }
 
         // Initialize the app
-        alert('DEBUG: About to create RecipeKeeper instance');
+        alert('1');
         const recipeKeeper = new RecipeKeeper();
-        alert('DEBUG: RecipeKeeper instance created');
+        alert('2');
         
         // Make recipeKeeper globally accessible for onclick handlers
         window.recipeKeeper = recipeKeeper;
-        alert('DEBUG: recipeKeeper added to window object');
+        alert('3');
 
         // Request persistent storage for better data retention
         if ('storage' in navigator && 'persist' in navigator.storage) {
@@ -6068,15 +6065,15 @@ Note: This is a demo OCR result. In a real implementation, this would be extract
 
         // Handle deep links for PWA shortcuts
         window.addEventListener('DOMContentLoaded', () => {
-            alert('DEBUG: DOM loaded, JavaScript is working');
+            alert('4');
             
             // Initialize the recipe keeper app
             if (typeof recipeKeeper !== 'undefined') {
-                alert('DEBUG: recipeKeeper object exists');
+                alert('5');
                 recipeKeeper.init();
-                alert('DEBUG: recipeKeeper initialized');
+                alert('6');
             } else {
-                alert('ERROR: recipeKeeper object not found!');
+                alert('ERROR');
             }
             
             const hash = window.location.hash;
