@@ -2179,6 +2179,204 @@
                 });
             }
 
+            // Cooking Mode Methods
+            startCookingMode(recipeId) {
+                const recipe = this.recipes.find(r => r.id === recipeId);
+                if (!recipe) return;
+
+                // Disable screen lock (if supported)
+                if ('wakeLock' in navigator) {
+                    navigator.wakeLock.request('screen').catch(err => {
+                        console.log('Screen lock disable not supported:', err);
+                    });
+                }
+
+                // Create cooking mode overlay
+                const cookingMode = document.createElement('div');
+                cookingMode.className = 'cooking-mode';
+                cookingMode.id = 'cookingMode';
+                
+                // Parse ingredients and instructions
+                const ingredients = recipe.ingredients.length > 0 ? recipe.ingredients : 
+                    this.extractIngredientsFromContent(recipe.content);
+                const instructions = recipe.instructions.length > 0 ? recipe.instructions : 
+                    this.extractInstructionsFromContent(recipe.content);
+
+                cookingMode.innerHTML = `
+                    <div class="cooking-header">
+                        <h2>👨‍🍳 Cooking: ${this.escapeHtml(recipe.title)}</h2>
+                        <div class="text-size-controls">
+                            <button class="text-size-btn" onclick="recipeKeeper.adjustTextSize(-1)">A-</button>
+                            <span>Text Size</span>
+                            <button class="text-size-btn" onclick="recipeKeeper.adjustTextSize(1)">A+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="cooking-content">
+                        <div class="ingredients-section">
+                            <h3>📝 Ingredients</h3>
+                            <div id="ingredientsList">
+                                ${ingredients.map((ingredient, index) => `
+                                    <div class="ingredient-item">
+                                        <input type="checkbox" class="ingredient-checkbox" id="ingredient-${index}">
+                                        <label for="ingredient-${index}">${this.escapeHtml(ingredient)}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="instructions-section">
+                            <h3>👨‍🍳 Instructions</h3>
+                            <div id="instructionsList">
+                                ${instructions.map((instruction, index) => `
+                                    <div class="step-item" id="step-${index}">
+                                        <strong>Step ${index + 1}:</strong> ${this.escapeHtml(instruction)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="cooking-controls">
+                        <button class="btn-cooking" onclick="recipeKeeper.previousStep()">⬅️ Previous</button>
+                        <button class="btn-cooking" onclick="recipeKeeper.nextStep()">Next ➡️</button>
+                        <button class="btn-cooking" onclick="recipeKeeper.exitCookingMode()">❌ Exit</button>
+                    </div>
+                `;
+
+                document.body.appendChild(cookingMode);
+                
+                // Initialize cooking mode state
+                this.cookingState = {
+                    currentStep: 0,
+                    totalSteps: instructions.length,
+                    recipeId: recipeId
+                };
+                
+                this.updateCurrentStep();
+                this.initializeCookingEventListeners();
+            }
+
+            extractIngredientsFromContent(content) {
+                const lines = content.split('\n');
+                const ingredients = [];
+                let inIngredientsSection = false;
+                
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine) continue;
+                    
+                    const lowerLine = trimmedLine.toLowerCase();
+                    if (lowerLine.includes('ingredient') || lowerLine.includes('what you need')) {
+                        inIngredientsSection = true;
+                        continue;
+                    }
+                    if (lowerLine.includes('instruction') || lowerLine.includes('method') || lowerLine.includes('directions')) {
+                        inIngredientsSection = false;
+                        continue;
+                    }
+                    
+                    if (inIngredientsSection && trimmedLine) {
+                        ingredients.push(trimmedLine);
+                    }
+                }
+                
+                return ingredients.length > 0 ? ingredients : ['No ingredients found'];
+            }
+
+            extractInstructionsFromContent(content) {
+                const lines = content.split('\n');
+                const instructions = [];
+                let inInstructionsSection = false;
+                
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine) continue;
+                    
+                    const lowerLine = trimmedLine.toLowerCase();
+                    if (lowerLine.includes('instruction') || lowerLine.includes('method') || lowerLine.includes('directions') || lowerLine.includes('steps')) {
+                        inInstructionsSection = true;
+                        continue;
+                    }
+                    if (lowerLine.includes('ingredient') || lowerLine.includes('what you need')) {
+                        inInstructionsSection = false;
+                        continue;
+                    }
+                    
+                    if (inInstructionsSection && trimmedLine) {
+                        instructions.push(trimmedLine);
+                    }
+                }
+                
+                return instructions.length > 0 ? instructions : ['No instructions found'];
+            }
+
+            initializeCookingEventListeners() {
+                // Add event listeners for ingredient checkboxes
+                document.querySelectorAll('.ingredient-checkbox').forEach((checkbox, index) => {
+                    checkbox.addEventListener('change', () => {
+                        const label = checkbox.nextElementSibling;
+                        if (checkbox.checked) {
+                            label.classList.add('ingredient-checked');
+                        } else {
+                            label.classList.remove('ingredient-checked');
+                        }
+                    });
+                });
+            }
+
+            updateCurrentStep() {
+                // Remove current step highlighting
+                document.querySelectorAll('.step-item').forEach(step => {
+                    step.classList.remove('step-current');
+                });
+                
+                // Highlight current step
+                const currentStepElement = document.getElementById(`step-${this.cookingState.currentStep}`);
+                if (currentStepElement) {
+                    currentStepElement.classList.add('step-current');
+                }
+            }
+
+            nextStep() {
+                if (this.cookingState.currentStep < this.cookingState.totalSteps - 1) {
+                    this.cookingState.currentStep++;
+                    this.updateCurrentStep();
+                }
+            }
+
+            previousStep() {
+                if (this.cookingState.currentStep > 0) {
+                    this.cookingState.currentStep--;
+                    this.updateCurrentStep();
+                }
+            }
+
+            adjustTextSize(delta) {
+                const cookingContent = document.querySelector('.cooking-content');
+                if (cookingContent) {
+                    const currentSize = parseFloat(getComputedStyle(cookingContent).fontSize);
+                    const newSize = Math.max(12, Math.min(24, currentSize + delta));
+                    cookingContent.style.fontSize = newSize + 'px';
+                }
+            }
+
+            exitCookingMode() {
+                const cookingMode = document.getElementById('cookingMode');
+                if (cookingMode) {
+                    cookingMode.remove();
+                }
+                
+                // Re-enable screen lock
+                if (navigator.wakeLock) {
+                    navigator.wakeLock.release().catch(err => {
+                        console.log('Screen lock re-enable failed:', err);
+                    });
+                }
+                
+                this.cookingState = null;
+            }
+
             renderCategories() {
                 const container = document.getElementById('categoriesContainer');
                 
@@ -2496,6 +2694,7 @@
                         <div class="recipe-preview">${this.escapeHtml(preview)}</div>
                         <div class="recipe-actions">
                             <button class="btn-small btn-edit" data-action="view" data-id="${recipe.id}">View</button>
+                            <button class="btn-small btn-edit" data-action="cook" data-id="${recipe.id}">👨‍🍳 Cook</button>
                             <button class="btn-small btn-edit" data-action="edit" data-id="${recipe.id}">Edit</button>
                             <button class="btn-small btn-delete" data-action="delete" data-id="${recipe.id}">Delete</button>
                         </div>
@@ -2503,12 +2702,18 @@
                     
                     // Add event listeners for buttons
                     const viewBtn = card.querySelector('[data-action="view"]');
+                    const cookBtn = card.querySelector('[data-action="cook"]');
                     const editBtn = card.querySelector('[data-action="edit"]');
                     const deleteBtn = card.querySelector('[data-action="delete"]');
                     
                     viewBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.viewRecipe(recipe.id);
+                    });
+                    
+                    cookBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.startCookingMode(recipe.id);
                     });
                     
                     editBtn.addEventListener('click', (e) => {
