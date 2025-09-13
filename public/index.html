@@ -309,7 +309,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
+            z-index: 10000;
             animation: fadeIn 0.3s ease;
         }
 
@@ -3820,6 +3820,7 @@
 
             importFromUrl() {
                 const url = document.getElementById('socialMediaUrl').value.trim();
+                
                 if (!url) {
                     this.showMessage('Please enter a URL', 'error');
                     return;
@@ -3972,27 +3973,40 @@ Please edit this recipe to add:
             }
 
             showSocialMediaImportPreview(recipe) {
+                // Remove any existing modal first
+                const existingModal = document.getElementById('socialMediaImportModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+                
                 // Create a modal to preview the imported recipe
                 const modal = document.createElement('div');
                 modal.className = 'modal';
                 modal.id = 'socialMediaImportModal';
                 modal.style.display = 'block';
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                modal.style.zIndex = '10000';
                 
                 modal.innerHTML = `
-                    <div class="modal-content" style="max-width: 600px;">
-                        <div class="modal-header">
-                            <h3>📱 Social Media Recipe Import</h3>
-                            <button class="close-btn" onclick="recipeKeeper.closeSocialMediaImportModal()">&times;</button>
+                    <div class="modal-content" style="max-width: 600px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--warm-white); padding: 20px; border-radius: 15px; box-shadow: 0 8px 32px var(--shadow);">
+                        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--light-sage);">
+                            <h3 style="color: var(--deep-sage); font-family: 'Libre Baskerville', serif; margin: 0;">📱 Social Media Recipe Import</h3>
+                            <button class="close-btn" onclick="recipeKeeper.closeSocialMediaImportModal()" style="background: var(--terracotta); color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 18px;">&times;</button>
                         </div>
-                        <div class="modal-body">
-                            <h4>Preview Imported Recipe:</h4>
-                            <div class="imported-recipe-preview">
-                                <h5>${this.escapeHtml(recipe.title)}</h5>
-                                <div class="recipe-content">${recipe.content}</div>
+                        <div class="modal-body" style="padding: 10px 0;">
+                            <h4 style="color: var(--deep-sage); margin-bottom: 15px;">Preview Imported Recipe:</h4>
+                            <div class="imported-recipe-preview" style="background: var(--light-sage); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                                <h5 style="color: var(--deep-sage); margin: 0 0 10px 0;">${this.escapeHtml(recipe.title)}</h5>
+                                <div class="recipe-content" style="color: var(--soft-brown); line-height: 1.6;">${recipe.content}</div>
                             </div>
-                            <div class="import-actions">
-                                <button class="btn-secondary" onclick="recipeKeeper.editSocialMediaRecipe()">✏️ Edit Before Import</button>
-                                <button class="btn-primary" onclick="recipeKeeper.confirmSocialMediaImport()">✅ Import Recipe</button>
+                            <div class="import-actions" style="text-align: right;">
+                                <button class="btn-secondary" onclick="recipeKeeper.editSocialMediaRecipe()" style="background: var(--light-sage); color: white; padding: 10px 20px; border: none; border-radius: 25px; cursor: pointer; margin-right: 10px; font-family: 'Crimson Text', serif;">✏️ Edit Before Import</button>
+                                <button class="btn-primary" onclick="recipeKeeper.confirmSocialMediaImport()" style="background: var(--sage); color: white; padding: 10px 20px; border: none; border-radius: 25px; cursor: pointer; font-family: 'Crimson Text', serif;">✅ Import Recipe</button>
                             </div>
                         </div>
                     </div>
@@ -4000,6 +4014,9 @@ Please edit this recipe to add:
 
                 document.body.appendChild(modal);
                 this.currentSocialMediaRecipe = recipe;
+                
+                // Force a reflow to ensure the modal is visible
+                modal.offsetHeight;
             }
 
             editSocialMediaRecipe() {
