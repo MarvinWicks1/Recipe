@@ -403,6 +403,277 @@
             font-style: italic;
         }
 
+        /* Category Section Styles */
+        .category-section {
+            background: var(--cream);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 1px solid rgba(156, 175, 136, 0.2);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--soft-brown);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkbox-label:hover {
+            background: var(--light-sage);
+            color: white;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+        }
+
+        /* Filter Section Styles */
+        .filter-section {
+            background: var(--warm-white);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px var(--soft-shadow);
+            border: 1px solid rgba(156, 175, 136, 0.1);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            color: var(--soft-brown);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .filter-control {
+            padding: 10px;
+            border: 2px solid var(--light-sage);
+            border-radius: 8px;
+            font-family: 'Crimson Text', serif;
+            font-size: 0.9rem;
+            background: var(--cream);
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-control:focus {
+            outline: none;
+            border-color: var(--sage);
+            box-shadow: 0 0 0 3px rgba(156, 175, 136, 0.1);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-filter {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-family: 'Crimson Text', serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-apply {
+            background: var(--sage);
+            color: white;
+        }
+
+        .btn-clear {
+            background: var(--light-sage);
+            color: white;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Recipe Card Category Tags */
+        .recipe-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .category-tag {
+            background: var(--light-sage);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .category-tag.type { background: var(--sage); }
+        .category-tag.ingredient { background: var(--terracotta); }
+        .category-tag.cuisine { background: var(--soft-brown); }
+        .category-tag.difficulty { background: var(--deep-sage); }
+        .category-tag.time { background: #8b6f47; }
+        .category-tag.dietary { background: #7a8b6b; }
+
+        /* Sort Options */
+        .sort-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .sort-label {
+            color: var(--soft-brown);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .sort-select {
+            padding: 8px 15px;
+            border: 2px solid var(--light-sage);
+            border-radius: 8px;
+            font-family: 'Crimson Text', serif;
+            font-size: 0.9rem;
+            background: var(--cream);
+            color: var(--charcoal);
+        }
+
+        /* Categories Section Styles */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .category-card {
+            background: var(--warm-white);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px var(--soft-shadow);
+            border: 1px solid rgba(156, 175, 136, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px var(--shadow);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .category-name {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.3rem;
+            color: var(--deep-sage);
+            font-weight: 600;
+        }
+
+        .category-count {
+            background: var(--sage);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .category-recipes {
+            margin-top: 15px;
+        }
+
+        .category-recipe-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--light-sage);
+        }
+
+        .category-recipe-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-recipe-title {
+            color: var(--charcoal);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .category-recipe-title:hover {
+            color: var(--deep-sage);
+        }
+
+        .category-recipe-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-tiny {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Crimson Text', serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view {
+            background: var(--sage);
+            color: white;
+        }
+
+        .btn-edit {
+            background: var(--light-sage);
+            color: white;
+        }
+
+        .btn-tiny:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2.5rem;
@@ -434,6 +705,7 @@
         <nav class="main-nav">
             <button class="nav-btn active" data-section="import">Add Recipe</button>
             <button class="nav-btn" data-section="recipes">My Recipes</button>
+            <button class="nav-btn" data-section="categories">Categories</button>
             <button class="nav-btn" onclick="recipeKeeper.showBackupOptions()">⚙️ Backup</button>
         </nav>
 
@@ -457,6 +729,123 @@
                             placeholder="Paste your recipe here... Include ingredients, instructions, cooking times, etc. I'll help organize it!" required></textarea>
                     </div>
 
+                    <!-- Category Selection Section -->
+                    <div class="category-section">
+                        <h3 style="color: var(--deep-sage); font-family: 'Libre Baskerville', serif; margin-bottom: 20px; font-size: 1.3rem;">Recipe Categories</h3>
+                        
+                        <div class="category-grid">
+                            <div class="form-group">
+                                <label for="recipeType">Recipe Type</label>
+                                <select id="recipeType" class="form-control">
+                                    <option value="">Select type...</option>
+                                    <option value="appetizer">Appetizer</option>
+                                    <option value="main-course">Main Course</option>
+                                    <option value="side-dish">Side Dish</option>
+                                    <option value="dessert">Dessert</option>
+                                    <option value="breakfast">Breakfast</option>
+                                    <option value="lunch">Lunch</option>
+                                    <option value="dinner">Dinner</option>
+                                    <option value="snack">Snack</option>
+                                    <option value="beverage">Beverage</option>
+                                    <option value="soup">Soup</option>
+                                    <option value="salad">Salad</option>
+                                    <option value="sauce">Sauce</option>
+                                    <option value="bread">Bread</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mainIngredient">Main Ingredient</label>
+                                <select id="mainIngredient" class="form-control">
+                                    <option value="">Select main ingredient...</option>
+                                    <option value="chicken">Chicken</option>
+                                    <option value="beef">Beef</option>
+                                    <option value="pork">Pork</option>
+                                    <option value="fish">Fish</option>
+                                    <option value="seafood">Seafood</option>
+                                    <option value="vegetables">Vegetables</option>
+                                    <option value="pasta">Pasta</option>
+                                    <option value="rice">Rice</option>
+                                    <option value="potatoes">Potatoes</option>
+                                    <option value="eggs">Eggs</option>
+                                    <option value="cheese">Cheese</option>
+                                    <option value="beans">Beans/Legumes</option>
+                                    <option value="nuts">Nuts</option>
+                                    <option value="fruits">Fruits</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cuisine">Cuisine</label>
+                                <select id="cuisine" class="form-control">
+                                    <option value="">Select cuisine...</option>
+                                    <option value="american">American</option>
+                                    <option value="italian">Italian</option>
+                                    <option value="mexican">Mexican</option>
+                                    <option value="chinese">Chinese</option>
+                                    <option value="indian">Indian</option>
+                                    <option value="french">French</option>
+                                    <option value="thai">Thai</option>
+                                    <option value="japanese">Japanese</option>
+                                    <option value="mediterranean">Mediterranean</option>
+                                    <option value="middle-eastern">Middle Eastern</option>
+                                    <option value="korean">Korean</option>
+                                    <option value="greek">Greek</option>
+                                    <option value="spanish">Spanish</option>
+                                    <option value="german">German</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="difficulty">Difficulty</label>
+                                <select id="difficulty" class="form-control">
+                                    <option value="">Select difficulty...</option>
+                                    <option value="easy">Easy</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="hard">Hard</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cookTime">Cooking Time</label>
+                                <select id="cookTime" class="form-control">
+                                    <option value="">Select time...</option>
+                                    <option value="under-15">Under 15 minutes</option>
+                                    <option value="15-30">15-30 minutes</option>
+                                    <option value="30-60">30-60 minutes</option>
+                                    <option value="1-2-hours">1-2 hours</option>
+                                    <option value="over-2-hours">Over 2 hours</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="dietary">Dietary Restrictions</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="vegetarian"> Vegetarian
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="vegan"> Vegan
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="gluten-free"> Gluten-Free
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="dairy-free"> Dairy-Free
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="keto"> Keto
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="paleo"> Paleo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn-primary">Save Recipe</button>
                 </form>
             </div>
@@ -467,11 +856,154 @@
             <div class="search-bar">
                 <input type="text" id="searchInput" class="search-input" placeholder="Search your recipes...">
             </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <h3 style="color: var(--deep-sage); font-family: 'Libre Baskerville', serif; margin-bottom: 20px; font-size: 1.3rem;">Filter & Sort Recipes</h3>
+                
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label for="filterType">Recipe Type</label>
+                        <select id="filterType" class="filter-control">
+                            <option value="">All Types</option>
+                            <option value="appetizer">Appetizer</option>
+                            <option value="main-course">Main Course</option>
+                            <option value="side-dish">Side Dish</option>
+                            <option value="dessert">Dessert</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="snack">Snack</option>
+                            <option value="beverage">Beverage</option>
+                            <option value="soup">Soup</option>
+                            <option value="salad">Salad</option>
+                            <option value="sauce">Sauce</option>
+                            <option value="bread">Bread</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterIngredient">Main Ingredient</label>
+                        <select id="filterIngredient" class="filter-control">
+                            <option value="">All Ingredients</option>
+                            <option value="chicken">Chicken</option>
+                            <option value="beef">Beef</option>
+                            <option value="pork">Pork</option>
+                            <option value="fish">Fish</option>
+                            <option value="seafood">Seafood</option>
+                            <option value="vegetables">Vegetables</option>
+                            <option value="pasta">Pasta</option>
+                            <option value="rice">Rice</option>
+                            <option value="potatoes">Potatoes</option>
+                            <option value="eggs">Eggs</option>
+                            <option value="cheese">Cheese</option>
+                            <option value="beans">Beans/Legumes</option>
+                            <option value="nuts">Nuts</option>
+                            <option value="fruits">Fruits</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterCuisine">Cuisine</label>
+                        <select id="filterCuisine" class="filter-control">
+                            <option value="">All Cuisines</option>
+                            <option value="american">American</option>
+                            <option value="italian">Italian</option>
+                            <option value="mexican">Mexican</option>
+                            <option value="chinese">Chinese</option>
+                            <option value="indian">Indian</option>
+                            <option value="french">French</option>
+                            <option value="thai">Thai</option>
+                            <option value="japanese">Japanese</option>
+                            <option value="mediterranean">Mediterranean</option>
+                            <option value="middle-eastern">Middle Eastern</option>
+                            <option value="korean">Korean</option>
+                            <option value="greek">Greek</option>
+                            <option value="spanish">Spanish</option>
+                            <option value="german">German</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterDifficulty">Difficulty</label>
+                        <select id="filterDifficulty" class="filter-control">
+                            <option value="">All Levels</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterTime">Cooking Time</label>
+                        <select id="filterTime" class="filter-control">
+                            <option value="">All Times</option>
+                            <option value="under-15">Under 15 minutes</option>
+                            <option value="15-30">15-30 minutes</option>
+                            <option value="30-60">30-60 minutes</option>
+                            <option value="1-2-hours">1-2 hours</option>
+                            <option value="over-2-hours">Over 2 hours</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterDietary">Dietary</label>
+                        <select id="filterDietary" class="filter-control">
+                            <option value="">All Dietary</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="gluten-free">Gluten-Free</option>
+                            <option value="dairy-free">Dairy-Free</option>
+                            <option value="keto">Keto</option>
+                            <option value="paleo">Paleo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button id="applyFilters" class="btn-filter btn-apply">Apply Filters</button>
+                    <button id="clearFilters" class="btn-filter btn-clear">Clear All</button>
+                </div>
+            </div>
+
+            <!-- Sort Section -->
+            <div class="sort-section">
+                <span class="sort-label">Sort by:</span>
+                <select id="sortSelect" class="sort-select">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="title-az">Title A-Z</option>
+                    <option value="title-za">Title Z-A</option>
+                    <option value="difficulty-easy">Difficulty: Easy to Hard</option>
+                    <option value="difficulty-hard">Difficulty: Hard to Easy</option>
+                    <option value="time-short">Time: Short to Long</option>
+                    <option value="time-long">Time: Long to Short</option>
+                </select>
+            </div>
             
             <div id="recipesContainer">
                 <div class="empty-state">
                     <h3>Your Recipe Collection Awaits</h3>
                     <p>Start by adding your first recipe using the "Add Recipe" tab above.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Management Section -->
+        <section id="categories" class="section">
+            <div class="import-section">
+                <h2>Recipe Categories</h2>
+                <p style="margin-bottom: 25px; color: var(--soft-brown); font-style: italic;">
+                    View and manage your recipe categories. See how many recipes you have in each category.
+                </p>
+                
+                <div id="categoriesContainer">
+                    <div class="empty-state">
+                        <h3>No Categories Yet</h3>
+                        <p>Add some recipes with categories to see them organized here.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -511,6 +1043,11 @@
                 // Search
                 document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
 
+                // Filter controls
+                document.getElementById('applyFilters').addEventListener('click', () => this.applyFilters());
+                document.getElementById('clearFilters').addEventListener('click', () => this.clearFilters());
+                document.getElementById('sortSelect').addEventListener('change', (e) => this.handleSort(e.target.value));
+
                 // Modal
                 document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
                 document.getElementById('recipeModal').addEventListener('click', (e) => {
@@ -534,6 +1071,8 @@
 
                 if (sectionName === 'recipes') {
                     this.renderRecipes();
+                } else if (sectionName === 'categories') {
+                    this.renderCategories();
                 }
             }
 
@@ -584,7 +1123,14 @@
                     instructions: [],
                     servings: '',
                     prepTime: '',
-                    cookTime: ''
+                    cookTime: '',
+                    // New category fields
+                    type: document.getElementById('recipeType').value,
+                    mainIngredient: document.getElementById('mainIngredient').value,
+                    cuisine: document.getElementById('cuisine').value,
+                    difficulty: document.getElementById('difficulty').value,
+                    cookTimeCategory: document.getElementById('cookTime').value,
+                    dietary: this.getSelectedDietaryRestrictions()
                 };
 
                 // Quick extraction - only process if content is reasonable length
@@ -733,9 +1279,175 @@
                 if (recipe) {
                     document.getElementById('recipeTitle').value = recipe.title;
                     document.getElementById('recipeText').value = recipe.content;
+                    
+                    // Populate category fields
+                    if (recipe.type) document.getElementById('recipeType').value = recipe.type;
+                    if (recipe.mainIngredient) document.getElementById('mainIngredient').value = recipe.mainIngredient;
+                    if (recipe.cuisine) document.getElementById('cuisine').value = recipe.cuisine;
+                    if (recipe.difficulty) document.getElementById('difficulty').value = recipe.difficulty;
+                    if (recipe.cookTimeCategory) document.getElementById('cookTime').value = recipe.cookTimeCategory;
+                    
+                    // Clear and set dietary restrictions
+                    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                    if (recipe.dietary) {
+                        recipe.dietary.forEach(diet => {
+                            const checkbox = document.querySelector(`input[value="${diet}"]`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+                    
                     this.currentEditId = id;
                     this.switchSection('import');
                 }
+            }
+
+            buildCategoryTags(recipe) {
+                let tags = '';
+                
+                if (recipe.type) {
+                    tags += `<span class="category-tag type">${this.formatCategoryValue(recipe.type)}</span>`;
+                }
+                if (recipe.mainIngredient) {
+                    tags += `<span class="category-tag ingredient">${this.formatCategoryValue(recipe.mainIngredient)}</span>`;
+                }
+                if (recipe.cuisine) {
+                    tags += `<span class="category-tag cuisine">${this.formatCategoryValue(recipe.cuisine)}</span>`;
+                }
+                if (recipe.difficulty) {
+                    tags += `<span class="category-tag difficulty">${this.formatCategoryValue(recipe.difficulty)}</span>`;
+                }
+                if (recipe.cookTimeCategory) {
+                    tags += `<span class="category-tag time">${this.formatCategoryValue(recipe.cookTimeCategory)}</span>`;
+                }
+                if (recipe.dietary && recipe.dietary.length > 0) {
+                    recipe.dietary.forEach(diet => {
+                        tags += `<span class="category-tag dietary">${this.formatCategoryValue(diet)}</span>`;
+                    });
+                }
+                
+                return tags;
+            }
+
+            formatCategoryValue(value) {
+                return value.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            }
+
+            renderCategories() {
+                const container = document.getElementById('categoriesContainer');
+                
+                // Group recipes by categories
+                const categories = this.groupRecipesByCategories();
+                
+                if (Object.keys(categories).length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No Categories Yet</h3>
+                            <p>Add some recipes with categories to see them organized here.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const categoriesGrid = document.createElement('div');
+                categoriesGrid.className = 'categories-grid';
+
+                Object.keys(categories).forEach(categoryType => {
+                    const categoryData = categories[categoryType];
+                    
+                    Object.keys(categoryData).forEach(categoryValue => {
+                        const recipes = categoryData[categoryValue];
+                        const categoryCard = document.createElement('div');
+                        categoryCard.className = 'category-card';
+                        
+                        const categoryName = this.formatCategoryValue(categoryValue);
+                        const categoryTypeName = this.formatCategoryValue(categoryType);
+                        
+                        let recipesList = '';
+                        recipes.forEach(recipe => {
+                            recipesList += `
+                                <div class="category-recipe-item">
+                                    <span class="category-recipe-title" onclick="recipeKeeper.viewRecipe('${recipe.id}')">
+                                        ${this.escapeHtml(recipe.title)}
+                                    </span>
+                                    <div class="category-recipe-actions">
+                                        <button class="btn-tiny btn-view" onclick="recipeKeeper.viewRecipe('${recipe.id}')">View</button>
+                                        <button class="btn-tiny btn-edit" onclick="recipeKeeper.editRecipe('${recipe.id}')">Edit</button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        categoryCard.innerHTML = `
+                            <div class="category-header">
+                                <span class="category-name">${categoryName}</span>
+                                <span class="category-count">${recipes.length} recipe${recipes.length !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div style="color: var(--soft-brown); font-size: 0.9rem; margin-bottom: 15px;">
+                                ${categoryTypeName}
+                            </div>
+                            <div class="category-recipes">
+                                ${recipesList}
+                            </div>
+                        `;
+                        
+                        categoriesGrid.appendChild(categoryCard);
+                    });
+                });
+
+                container.innerHTML = '';
+                container.appendChild(categoriesGrid);
+            }
+
+            groupRecipesByCategories() {
+                const categories = {};
+                
+                this.recipes.forEach(recipe => {
+                    // Group by type
+                    if (recipe.type) {
+                        if (!categories.type) categories.type = {};
+                        if (!categories.type[recipe.type]) categories.type[recipe.type] = [];
+                        categories.type[recipe.type].push(recipe);
+                    }
+                    
+                    // Group by main ingredient
+                    if (recipe.mainIngredient) {
+                        if (!categories.mainIngredient) categories.mainIngredient = {};
+                        if (!categories.mainIngredient[recipe.mainIngredient]) categories.mainIngredient[recipe.mainIngredient] = [];
+                        categories.mainIngredient[recipe.mainIngredient].push(recipe);
+                    }
+                    
+                    // Group by cuisine
+                    if (recipe.cuisine) {
+                        if (!categories.cuisine) categories.cuisine = {};
+                        if (!categories.cuisine[recipe.cuisine]) categories.cuisine[recipe.cuisine] = [];
+                        categories.cuisine[recipe.cuisine].push(recipe);
+                    }
+                    
+                    // Group by difficulty
+                    if (recipe.difficulty) {
+                        if (!categories.difficulty) categories.difficulty = {};
+                        if (!categories.difficulty[recipe.difficulty]) categories.difficulty[recipe.difficulty] = [];
+                        categories.difficulty[recipe.difficulty].push(recipe);
+                    }
+                    
+                    // Group by cooking time
+                    if (recipe.cookTimeCategory) {
+                        if (!categories.cookTimeCategory) categories.cookTimeCategory = {};
+                        if (!categories.cookTimeCategory[recipe.cookTimeCategory]) categories.cookTimeCategory[recipe.cookTimeCategory] = [];
+                        categories.cookTimeCategory[recipe.cookTimeCategory].push(recipe);
+                    }
+                    
+                    // Group by dietary restrictions
+                    if (recipe.dietary && recipe.dietary.length > 0) {
+                        if (!categories.dietary) categories.dietary = {};
+                        recipe.dietary.forEach(diet => {
+                            if (!categories.dietary[diet]) categories.dietary[diet] = [];
+                            categories.dietary[diet].push(recipe);
+                        });
+                    }
+                });
+                
+                return categories;
             }
 
             viewRecipe(id) {
@@ -794,9 +1506,97 @@
                 const filtered = query.trim() === '' ? this.recipes : 
                     this.recipes.filter(recipe => 
                         recipe.title.toLowerCase().includes(query.toLowerCase()) ||
-                        recipe.content.toLowerCase().includes(query.toLowerCase())
+                        recipe.content.toLowerCase().includes(query.toLowerCase()) ||
+                        (recipe.type && recipe.type.toLowerCase().includes(query.toLowerCase())) ||
+                        (recipe.mainIngredient && recipe.mainIngredient.toLowerCase().includes(query.toLowerCase())) ||
+                        (recipe.cuisine && recipe.cuisine.toLowerCase().includes(query.toLowerCase())) ||
+                        (recipe.dietary && recipe.dietary.some(d => d.toLowerCase().includes(query.toLowerCase())))
                     );
                 this.renderRecipes(filtered);
+            }
+
+            getSelectedDietaryRestrictions() {
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+                return Array.from(checkboxes).map(cb => cb.value);
+            }
+
+            applyFilters() {
+                const filters = {
+                    type: document.getElementById('filterType').value,
+                    mainIngredient: document.getElementById('filterIngredient').value,
+                    cuisine: document.getElementById('filterCuisine').value,
+                    difficulty: document.getElementById('filterDifficulty').value,
+                    cookTimeCategory: document.getElementById('filterTime').value,
+                    dietary: document.getElementById('filterDietary').value
+                };
+
+                let filtered = this.recipes;
+
+                // Apply each filter
+                Object.keys(filters).forEach(key => {
+                    if (filters[key]) {
+                        if (key === 'dietary') {
+                            filtered = filtered.filter(recipe => 
+                                recipe.dietary && recipe.dietary.includes(filters[key])
+                            );
+                        } else {
+                            filtered = filtered.filter(recipe => recipe[key] === filters[key]);
+                        }
+                    }
+                });
+
+                this.renderRecipes(filtered);
+            }
+
+            clearFilters() {
+                // Reset all filter controls
+                document.getElementById('filterType').value = '';
+                document.getElementById('filterIngredient').value = '';
+                document.getElementById('filterCuisine').value = '';
+                document.getElementById('filterDifficulty').value = '';
+                document.getElementById('filterTime').value = '';
+                document.getElementById('filterDietary').value = '';
+                document.getElementById('searchInput').value = '';
+
+                // Show all recipes
+                this.renderRecipes();
+            }
+
+            handleSort(sortBy) {
+                let sorted = [...this.recipes];
+
+                switch(sortBy) {
+                    case 'newest':
+                        sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                        break;
+                    case 'oldest':
+                        sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                        break;
+                    case 'title-az':
+                        sorted.sort((a, b) => a.title.localeCompare(b.title));
+                        break;
+                    case 'title-za':
+                        sorted.sort((a, b) => b.title.localeCompare(a.title));
+                        break;
+                    case 'difficulty-easy':
+                        const difficultyOrder = { 'easy': 1, 'medium': 2, 'hard': 3 };
+                        sorted.sort((a, b) => (difficultyOrder[a.difficulty] || 4) - (difficultyOrder[b.difficulty] || 4));
+                        break;
+                    case 'difficulty-hard':
+                        const difficultyOrderRev = { 'hard': 1, 'medium': 2, 'easy': 3 };
+                        sorted.sort((a, b) => (difficultyOrderRev[a.difficulty] || 4) - (difficultyOrderRev[b.difficulty] || 4));
+                        break;
+                    case 'time-short':
+                        const timeOrder = { 'under-15': 1, '15-30': 2, '30-60': 3, '1-2-hours': 4, 'over-2-hours': 5 };
+                        sorted.sort((a, b) => (timeOrder[a.cookTimeCategory] || 6) - (timeOrder[b.cookTimeCategory] || 6));
+                        break;
+                    case 'time-long':
+                        const timeOrderRev = { 'over-2-hours': 1, '1-2-hours': 2, '30-60': 3, '15-30': 4, 'under-15': 5 };
+                        sorted.sort((a, b) => (timeOrderRev[a.cookTimeCategory] || 6) - (timeOrderRev[b.cookTimeCategory] || 6));
+                        break;
+                }
+
+                this.renderRecipes(sorted);
             }
 
             renderRecipes(recipesToRender = this.recipes) {
@@ -823,8 +1623,14 @@
                     
                     const preview = recipe.content.substring(0, 150) + (recipe.content.length > 150 ? '...' : '');
                     
+                    // Build category tags
+                    const categoryTags = this.buildCategoryTags(recipe);
+                    
                     card.innerHTML = `
                         <h3>${this.escapeHtml(recipe.title)}</h3>
+                        <div class="recipe-categories">
+                            ${categoryTags}
+                        </div>
                         <div class="recipe-meta">
                             ${recipe.servings ? `<span>${this.escapeHtml(recipe.servings)}</span>` : ''}
                             ${recipe.prepTime ? `<span>${this.escapeHtml(recipe.prepTime)}</span>` : ''}
@@ -875,6 +1681,8 @@
 
             resetForm() {
                 document.getElementById('recipeForm').reset();
+                // Clear all checkboxes
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
                 this.currentEditId = null;
             }
 
