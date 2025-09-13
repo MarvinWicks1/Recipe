@@ -1487,6 +1487,109 @@
             font-size: 1.1rem;
         }
 
+        /* Unit Conversion Styles */
+        .toolbar-separator {
+            width: 1px;
+            height: 30px;
+            background: var(--sage);
+            margin: 0 10px;
+        }
+
+        .conversion-btn {
+            background: var(--terracotta) !important;
+            color: white !important;
+        }
+
+        .conversion-btn:hover {
+            background: var(--sage) !important;
+        }
+
+        .conversion-options {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .conversion-option {
+            flex: 1;
+        }
+
+        .conversion-option label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border: 2px solid var(--light-sage);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Crimson Text', serif;
+        }
+
+        .conversion-option label:hover {
+            background: var(--light-sage);
+            color: white;
+        }
+
+        .conversion-option input[type="radio"] {
+            transform: scale(1.2);
+        }
+
+        .conversion-option input[type="radio"]:checked + label {
+            background: var(--sage);
+            color: white;
+            border-color: var(--sage);
+        }
+
+        .conversion-preview {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--warm-white);
+            border-radius: 10px;
+            border: 1px solid var(--light-sage);
+        }
+
+        .conversion-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .conversion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--light-sage);
+            font-family: 'Crimson Text', serif;
+        }
+
+        .conversion-item:last-child {
+            border-bottom: none;
+        }
+
+        .conversion-original {
+            color: var(--soft-brown);
+            text-decoration: line-through;
+        }
+
+        .conversion-arrow {
+            margin: 0 10px;
+            color: var(--sage);
+            font-weight: bold;
+        }
+
+        .conversion-result {
+            color: var(--deep-sage);
+            font-weight: bold;
+        }
+
+        .conversion-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2.5rem;
@@ -1550,6 +1653,8 @@
                             <button type="button" class="format-btn" data-command="justifyCenter" title="Center">↔</button>
                             <button type="button" class="format-btn" data-command="justifyRight" title="Align Right">➡</button>
                             <button type="button" class="format-btn" data-command="removeFormat" title="Clear Formatting">Clear</button>
+                            <div class="toolbar-separator"></div>
+                            <button type="button" class="format-btn conversion-btn" onclick="recipeKeeper.convertUnits()" title="Convert Units">🔄 Convert Units</button>
                         </div>
                         <div id="recipeText" class="rich-text-editor" contenteditable="true" data-placeholder="Paste your recipe here... Include ingredients, instructions, cooking times, etc. I'll help organize it!"></div>
                     </div>
@@ -2040,6 +2145,44 @@
                 </div>
             </div>
         </section>
+
+        <!-- Unit Conversion Modal -->
+        <div id="unitConversionModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3>🔄 Unit Conversion</h3>
+                    <button class="close-btn" onclick="recipeKeeper.closeUnitConversionModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Convert measurements between US/Imperial and Metric units in your recipe.</p>
+                    
+                    <div class="conversion-options">
+                        <div class="conversion-option">
+                            <label>
+                                <input type="radio" name="conversionType" value="us-to-metric" checked>
+                                US/Imperial → Metric
+                            </label>
+                        </div>
+                        <div class="conversion-option">
+                            <label>
+                                <input type="radio" name="conversionType" value="metric-to-us">
+                                Metric → US/Imperial
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="conversion-preview">
+                        <h4>Preview Conversions:</h4>
+                        <div id="conversionPreview" class="conversion-list"></div>
+                    </div>
+
+                    <div class="conversion-actions">
+                        <button class="btn-secondary" onclick="recipeKeeper.closeUnitConversionModal()">Cancel</button>
+                        <button class="btn-primary" onclick="recipeKeeper.applyUnitConversion()">Apply Conversion</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Recipe Detail Modal -->
@@ -3986,6 +4129,191 @@
                 if (editor) {
                     editor.innerHTML = '';
                 }
+            }
+
+            // Unit Conversion Methods
+            convertUnits() {
+                const editor = document.getElementById('recipeText');
+                if (!editor) return;
+
+                const content = editor.innerHTML;
+                if (!content.trim()) {
+                    this.showMessage('Please add some content to convert', 'error');
+                    return;
+                }
+
+                // Show conversion modal
+                document.getElementById('unitConversionModal').style.display = 'block';
+                this.generateConversionPreview(content);
+                
+                // Add event listeners for conversion type changes
+                document.querySelectorAll('input[name="conversionType"]').forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        this.generateConversionPreview(content);
+                    });
+                });
+            }
+
+            generateConversionPreview(content) {
+                const conversionType = document.querySelector('input[name="conversionType"]:checked').value;
+                const conversions = this.findConversions(content, conversionType);
+                
+                const previewContainer = document.getElementById('conversionPreview');
+                
+                if (conversions.length === 0) {
+                    previewContainer.innerHTML = '<p style="color: var(--soft-brown); font-style: italic;">No convertible units found in this recipe.</p>';
+                    return;
+                }
+
+                let html = '';
+                conversions.forEach(conversion => {
+                    html += `
+                        <div class="conversion-item">
+                            <span class="conversion-original">${conversion.original}</span>
+                            <span class="conversion-arrow">→</span>
+                            <span class="conversion-result">${conversion.converted}</span>
+                        </div>
+                    `;
+                });
+
+                previewContainer.innerHTML = html;
+            }
+
+            findConversions(content, conversionType) {
+                const conversions = [];
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = content;
+                const text = tempDiv.textContent || tempDiv.innerText || '';
+
+                // Define conversion patterns
+                const patterns = this.getConversionPatterns(conversionType);
+                
+                patterns.forEach(pattern => {
+                    const regex = new RegExp(pattern.regex, 'gi');
+                    let match;
+                    
+                    while ((match = regex.exec(text)) !== null) {
+                        const original = match[0];
+                        const converted = this.convertMeasurement(original, pattern);
+                        
+                        if (converted && converted !== original) {
+                            conversions.push({
+                                original: original,
+                                converted: converted,
+                                pattern: pattern
+                            });
+                        }
+                    }
+                });
+
+                return conversions;
+            }
+
+            getConversionPatterns(conversionType) {
+                if (conversionType === 'us-to-metric') {
+                    return [
+                        // Volume conversions
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(cups?|cup)\\b', type: 'volume', from: 'cup', to: 'ml', factor: 236.588 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(tablespoons?|tbsp|T)\\b', type: 'volume', from: 'tbsp', to: 'ml', factor: 14.7868 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(teaspoons?|tsp|t)\\b', type: 'volume', from: 'tsp', to: 'ml', factor: 4.92892 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(fluid ounces?|fl oz)\\b', type: 'volume', from: 'fl oz', to: 'ml', factor: 29.5735 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(pints?|pt)\\b', type: 'volume', from: 'pint', to: 'ml', factor: 473.176 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(quarts?|qt)\\b', type: 'volume', from: 'quart', to: 'ml', factor: 946.353 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(gallons?|gal)\\b', type: 'volume', from: 'gallon', to: 'l', factor: 3.78541 },
+                        
+                        // Weight conversions
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(pounds?|lbs?|lb)\\b', type: 'weight', from: 'lb', to: 'kg', factor: 0.453592 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(ounces?|oz)\\b', type: 'weight', from: 'oz', to: 'g', factor: 28.3495 },
+                        
+                        // Temperature conversions
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*°?F\\b', type: 'temperature', from: 'F', to: 'C', factor: 'fahrenheit' },
+                        
+                        // Length conversions
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(inches?|in)\\b', type: 'length', from: 'in', to: 'cm', factor: 2.54 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(feet?|ft)\\b', type: 'length', from: 'ft', to: 'cm', factor: 30.48 }
+                    ];
+                } else {
+                    return [
+                        // Volume conversions
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(ml|milliliters?)\\b', type: 'volume', from: 'ml', to: 'cup', factor: 0.00422675 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(l|liters?)\\b', type: 'volume', from: 'l', to: 'cup', factor: 4.22675 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(dl|deciliters?)\\b', type: 'volume', from: 'dl', to: 'cup', factor: 0.422675 },
+                        
+                        // Weight conversions
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(kg|kilograms?)\\b', type: 'weight', from: 'kg', to: 'lb', factor: 2.20462 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(g|grams?)\\b', type: 'weight', from: 'g', to: 'oz', factor: 0.035274 },
+                        
+                        // Temperature conversions
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*°?C\\b', type: 'temperature', from: 'C', to: 'F', factor: 'celsius' },
+                        
+                        // Length conversions
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(cm|centimeters?)\\b', type: 'length', from: 'cm', to: 'in', factor: 0.393701 },
+                        { regex: '\\b(\\d+(?:\\.\\d+)?)\\s*(mm|millimeters?)\\b', type: 'length', from: 'mm', to: 'in', factor: 0.0393701 }
+                    ];
+                }
+            }
+
+            convertMeasurement(original, pattern) {
+                const match = original.match(new RegExp(pattern.regex, 'i'));
+                if (!match) return original;
+
+                const value = parseFloat(match[1]);
+                if (isNaN(value)) return original;
+
+                let convertedValue;
+                let unit;
+
+                if (pattern.type === 'temperature') {
+                    if (pattern.from === 'F') {
+                        convertedValue = Math.round((value - 32) * 5/9);
+                        unit = '°C';
+                    } else {
+                        convertedValue = Math.round(value * 9/5 + 32);
+                        unit = '°F';
+                    }
+                } else {
+                    convertedValue = value * pattern.factor;
+                    
+                    if (convertedValue < 1 && pattern.type === 'volume') {
+                        convertedValue = Math.round(convertedValue * 100) / 100;
+                    } else if (convertedValue < 1 && pattern.type === 'weight') {
+                        convertedValue = Math.round(convertedValue * 100) / 100;
+                    } else {
+                        convertedValue = Math.round(convertedValue * 10) / 10;
+                    }
+                    
+                    unit = pattern.to;
+                }
+
+                return `${convertedValue} ${unit}`;
+            }
+
+            applyUnitConversion() {
+                const editor = document.getElementById('recipeText');
+                if (!editor) return;
+
+                const conversionType = document.querySelector('input[name="conversionType"]:checked').value;
+                const content = editor.innerHTML;
+                const conversions = this.findConversions(content, conversionType);
+
+                if (conversions.length === 0) {
+                    this.showMessage('No conversions to apply', 'info');
+                    return;
+                }
+
+                let newContent = content;
+                conversions.forEach(conversion => {
+                    const regex = new RegExp(conversion.pattern.regex, 'gi');
+                    newContent = newContent.replace(regex, conversion.converted);
+                });
+
+                editor.innerHTML = newContent;
+                this.closeUnitConversionModal();
+                this.showMessage(`✅ Converted ${conversions.length} measurements!`, 'success');
+            }
+
+            closeUnitConversionModal() {
+                document.getElementById('unitConversionModal').style.display = 'none';
             }
 
             // Shopping List Methods
