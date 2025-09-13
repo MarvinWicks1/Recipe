@@ -2294,6 +2294,7 @@
                             
                             <input type="url" id="socialMediaUrl" class="form-control" placeholder="Paste social media URL here...">
                             <button class="btn-secondary" onclick="recipeKeeper.importFromUrl()">📱 Import from Social Media</button>
+                            <button class="btn-secondary" onclick="recipeKeeper.testSocialMediaImport()" style="margin-top: 10px;">🧪 Test Social Media Import</button>
                             
                             <div class="file-import">
                                 <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
@@ -3823,52 +3824,217 @@
                     this.showMessage('Please enter a URL', 'error');
                     return;
                 }
+
+                // Validate URL format
+                try {
+                    new URL(url);
+                } catch (e) {
+                    this.showMessage('Please enter a valid URL (e.g., https://example.com)', 'error');
+                    return;
+                }
                 
-                this.showLoading('Importing recipe from URL...');
+                this.showLoading('Importing recipe from social media...');
                 
-                // For now, we'll create a placeholder recipe from the URL
-                // In a real implementation, you'd fetch and parse the URL content
+                // Simulate social media import with realistic delay
                 setTimeout(() => {
-                    const importedRecipe = {
-                        id: Date.now().toString(),
-                        title: `Imported Recipe from ${new URL(url).hostname}`,
-                        content: `Recipe imported from: ${url}\n\nPlease edit this recipe to add the actual content.`,
-                        createdAt: new Date().toISOString(),
-                        ingredients: [],
-                        instructions: [],
-                        servings: '',
-                        prepTime: '',
-                        cookTime: '',
-                        type: '',
-                        mainIngredient: '',
-                        cuisine: '',
-                        difficulty: '',
-                        cookTimeCategory: '',
-                        dietary: [],
-                        rating: 0,
-                        isFavorite: false,
-                        photo: null,
-                        nutrition: {
-                            calories: '',
-                            protein: '',
-                            carbs: '',
-                            fat: '',
-                            fiber: '',
-                            sugar: '',
-                            sodium: ''
-                        },
-                        videoUrl: url,
-                        relatedRecipes: [],
-                        notes: `Imported from: ${url}`
-                    };
-                    
-                    this.recipes.push(importedRecipe);
-                    this.saveRecipes();
-                    this.renderRecipes();
-                    this.hideLoading();
-                    this.showMessage('📥 Recipe imported successfully! Please edit to add content.', 'success');
-                    document.getElementById('socialMediaUrl').value = '';
+                    try {
+                        const domain = new URL(url).hostname;
+                        const importedRecipe = this.createSocialMediaRecipe(url, domain);
+                        
+                        // Show import preview modal
+                        this.showSocialMediaImportPreview(importedRecipe);
+                        this.hideLoading();
+                    } catch (error) {
+                        this.hideLoading();
+                        this.showMessage('Error importing from URL: ' + error.message, 'error');
+                    }
                 }, 2000);
+            }
+
+            createSocialMediaRecipe(url, domain) {
+                // Create different recipe templates based on the domain
+                const templates = {
+                    'instagram.com': {
+                        title: 'Instagram Recipe',
+                        content: `📸 Recipe from Instagram
+
+This recipe was shared on Instagram. Click the link below to view the original post and add the recipe details.
+
+🔗 Original Post: ${url}
+
+Please edit this recipe to add:
+• Ingredients list
+• Step-by-step instructions
+• Cooking time and servings
+• Any additional notes
+
+#RecipeFromInstagram #SocialMediaImport`
+                    },
+                    'facebook.com': {
+                        title: 'Facebook Recipe',
+                        content: `📘 Recipe from Facebook
+
+This recipe was shared on Facebook. Click the link below to view the original post and add the recipe details.
+
+🔗 Original Post: ${url}
+
+Please edit this recipe to add:
+• Ingredients list
+• Step-by-step instructions
+• Cooking time and servings
+• Any additional notes
+
+#RecipeFromFacebook #SocialMediaImport`
+                    },
+                    'twitter.com': {
+                        title: 'Twitter Recipe',
+                        content: `🐦 Recipe from Twitter
+
+This recipe was shared on Twitter. Click the link below to view the original post and add the recipe details.
+
+🔗 Original Post: ${url}
+
+Please edit this recipe to add:
+• Ingredients list
+• Step-by-step instructions
+• Cooking time and servings
+• Any additional notes
+
+#RecipeFromTwitter #SocialMediaImport`
+                    },
+                    'pinterest.com': {
+                        title: 'Pinterest Recipe',
+                        content: `📌 Recipe from Pinterest
+
+This recipe was pinned on Pinterest. Click the link below to view the original pin and add the recipe details.
+
+🔗 Original Pin: ${url}
+
+Please edit this recipe to add:
+• Ingredients list
+• Step-by-step instructions
+• Cooking time and servings
+• Any additional notes
+
+#RecipeFromPinterest #SocialMediaImport`
+                    }
+                };
+
+                const template = templates[domain] || {
+                    title: `Recipe from ${domain}`,
+                    content: `🌐 Recipe from Social Media
+
+This recipe was shared on social media. Click the link below to view the original post and add the recipe details.
+
+🔗 Original Post: ${url}
+
+Please edit this recipe to add:
+• Ingredients list
+• Step-by-step instructions
+• Cooking time and servings
+• Any additional notes
+
+#SocialMediaImport #RecipeImport`
+                };
+
+                return {
+                    id: Date.now().toString(),
+                    title: template.title,
+                    content: template.content,
+                    createdAt: new Date().toISOString(),
+                    ingredients: [],
+                    instructions: [],
+                    servings: '',
+                    prepTime: '',
+                    cookTime: '',
+                    type: '',
+                    mainIngredient: '',
+                    cuisine: '',
+                    difficulty: '',
+                    cookTimeCategory: '',
+                    dietary: [],
+                    rating: 0,
+                    isFavorite: false,
+                    photo: null,
+                    nutrition: {
+                        calories: '',
+                        protein: '',
+                        carbs: '',
+                        fat: '',
+                        fiber: '',
+                        sugar: '',
+                        sodium: ''
+                    },
+                    videoUrl: url, // Store the original URL as video link
+                    relatedRecipes: [],
+                    notes: `Imported from social media: ${url}`
+                };
+            }
+
+            showSocialMediaImportPreview(recipe) {
+                // Create a modal to preview the imported recipe
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.id = 'socialMediaImportModal';
+                modal.style.display = 'block';
+                
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px;">
+                        <div class="modal-header">
+                            <h3>📱 Social Media Recipe Import</h3>
+                            <button class="close-btn" onclick="recipeKeeper.closeSocialMediaImportModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <h4>Preview Imported Recipe:</h4>
+                            <div class="imported-recipe-preview">
+                                <h5>${this.escapeHtml(recipe.title)}</h5>
+                                <div class="recipe-content">${recipe.content}</div>
+                            </div>
+                            <div class="import-actions">
+                                <button class="btn-secondary" onclick="recipeKeeper.editSocialMediaRecipe()">✏️ Edit Before Import</button>
+                                <button class="btn-primary" onclick="recipeKeeper.confirmSocialMediaImport()">✅ Import Recipe</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+                this.currentSocialMediaRecipe = recipe;
+            }
+
+            editSocialMediaRecipe() {
+                // Switch to add recipe section with pre-filled data
+                this.switchSection('import');
+                document.getElementById('recipeTitle').value = this.currentSocialMediaRecipe.title;
+                this.setRichTextContent(this.currentSocialMediaRecipe.content);
+                this.closeSocialMediaImportModal();
+                this.showMessage('📝 Recipe loaded for editing. Please add your recipe details and save.', 'success');
+            }
+
+            confirmSocialMediaImport() {
+                if (!this.currentSocialMediaRecipe) return;
+
+                this.recipes.push(this.currentSocialMediaRecipe);
+                this.saveRecipes();
+                this.renderRecipes();
+                this.closeSocialMediaImportModal();
+                this.showMessage('✅ Recipe imported from social media!', 'success');
+                document.getElementById('socialMediaUrl').value = '';
+            }
+
+            closeSocialMediaImportModal() {
+                const modal = document.getElementById('socialMediaImportModal');
+                if (modal) {
+                    modal.remove();
+                }
+                this.currentSocialMediaRecipe = null;
+            }
+
+            // Test social media import function
+            testSocialMediaImport() {
+                // Pre-fill with a test URL
+                document.getElementById('socialMediaUrl').value = 'https://instagram.com/p/example-recipe';
+                this.importFromUrl();
             }
 
             // Initialize file import
