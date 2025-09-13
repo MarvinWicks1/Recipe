@@ -5865,6 +5865,9 @@ Note: This is a demo OCR result. In a real implementation, this would be extract
 
         // Initialize the app
         const recipeKeeper = new RecipeKeeper();
+        
+        // Make recipeKeeper globally accessible for onclick handlers
+        window.recipeKeeper = recipeKeeper;
 
         // Request persistent storage for better data retention
         if ('storage' in navigator && 'persist' in navigator.storage) {
