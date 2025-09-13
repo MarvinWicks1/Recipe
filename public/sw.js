@@ -1,5 +1,5 @@
 // Recipe Keeper Service Worker
-const CACHE_NAME = 'recipe-keeper-v2025-09-13T15-29-26-201Z';
+const CACHE_NAME = 'recipe-keeper-v2025-09-13T21-15-20-176Z';
 const urlsToCache = [
   '/',
   '/index.html',
