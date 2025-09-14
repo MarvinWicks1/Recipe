@@ -1102,6 +1102,9 @@
             }
         }
 
+        // Initialize app
+        let recipeKeeper;
+
         // Global functions
         function showSection(sectionName) {
             document.querySelectorAll('.section').forEach(section => {
@@ -1115,7 +1118,7 @@
             event.target.classList.add('active');
 
             // Render cupboard when switching to cupboard section
-            if (sectionName === 'cupboard') {
+            if (sectionName === 'cupboard' && recipeKeeper) {
                 recipeKeeper.renderCupboard();
             }
         }
@@ -1124,8 +1127,10 @@
             document.getElementById('recipeModal').style.display = 'none';
         }
 
-        // Initialize app
-        const recipeKeeper = new RecipeKeeper();
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            recipeKeeper = new RecipeKeeper();
+        });
     </script>
 </body>
 </html>
