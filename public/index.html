@@ -520,8 +520,8 @@
         <div class="header">
             <h1>🍳 Recipe Keeper v2</h1>
             <p>Your personal recipe collection</p>
-            <button onclick="showDebug('Button clicked!')" style="margin-top: 10px; padding: 5px 10px; background: var(--terracotta); color: white; border: none; border-radius: 5px;">Test Button Click</button>
-            <button onclick="showDebug('Navigation test clicked!'); showSection('add-recipe');" style="margin-top: 5px; padding: 5px 10px; background: var(--sage); color: white; border: none; border-radius: 5px;">Test Navigation</button>
+            <button id="testButton1" style="margin-top: 10px; padding: 5px 10px; background: var(--terracotta); color: white; border: none; border-radius: 5px;">Test Button Click</button>
+            <button id="testButton2" style="margin-top: 5px; padding: 5px 10px; background: var(--sage); color: white; border: none; border-radius: 5px;">Test Navigation</button>
             <div id="debugInfo" style="margin-top: 10px; padding: 10px; background: var(--light-sage); border-radius: 5px; font-size: 0.9rem;"></div>
         </div>
 
@@ -1186,6 +1186,29 @@
             setTimeout(function() {
                 showDebug('Testing showDebug function...');
             }, 1000);
+            
+            // Add event listeners to test buttons
+            const testButton1 = document.getElementById('testButton1');
+            const testButton2 = document.getElementById('testButton2');
+            
+            if (testButton1) {
+                testButton1.addEventListener('click', function() {
+                    showDebug('✅ Test Button 1 clicked via event listener!');
+                });
+                showDebug('✅ Test Button 1 event listener added');
+            } else {
+                showDebug('❌ Test Button 1 not found');
+            }
+            
+            if (testButton2) {
+                testButton2.addEventListener('click', function() {
+                    showDebug('✅ Test Button 2 clicked via event listener!');
+                    showSection('add-recipe');
+                });
+                showDebug('✅ Test Button 2 event listener added');
+            } else {
+                showDebug('❌ Test Button 2 not found');
+            }
         });
     </script>
 </body>
