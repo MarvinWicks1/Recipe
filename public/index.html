@@ -521,6 +521,7 @@
             <h1>🍳 Recipe Keeper v2</h1>
             <p>Your personal recipe collection</p>
             <button onclick="alert('JavaScript is working!')" style="margin-top: 10px; padding: 5px 10px; background: var(--terracotta); color: white; border: none; border-radius: 5px;">Test JavaScript</button>
+            <button onclick="showSection('add-recipe')" style="margin-top: 5px; padding: 5px 10px; background: var(--sage); color: white; border: none; border-radius: 5px;">Test Navigation</button>
             <div id="debugInfo" style="margin-top: 10px; padding: 10px; background: var(--light-sage); border-radius: 5px; font-size: 0.9rem;"></div>
         </div>
 
@@ -1109,15 +1110,31 @@
 
         // Global functions
         function showSection(sectionName) {
+            showDebug('Switching to section: ' + sectionName);
+            
+            // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
+            
+            // Remove active class from all nav buttons
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            document.getElementById(sectionName).classList.add('active');
-            event.target.classList.add('active');
+            // Show the selected section
+            const targetSection = document.getElementById(sectionName);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                showDebug('✅ Section ' + sectionName + ' is now active');
+            } else {
+                showDebug('❌ Section ' + sectionName + ' not found');
+            }
+            
+            // Add active class to clicked button
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
 
             // Render cupboard when switching to cupboard section
             if (sectionName === 'cupboard' && recipeKeeper) {
