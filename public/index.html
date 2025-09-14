@@ -520,9 +520,6 @@
         <div class="header">
             <h1>🍳 Recipe Keeper v2</h1>
             <p>Your personal recipe collection</p>
-            <button id="testButton1" style="margin-top: 10px; padding: 5px 10px; background: var(--terracotta); color: white; border: none; border-radius: 5px;">Test Button Click</button>
-            <button id="testButton2" style="margin-top: 5px; padding: 5px 10px; background: var(--sage); color: white; border: none; border-radius: 5px;">Test Navigation</button>
-            <div id="debugInfo" style="margin-top: 10px; padding: 10px; background: var(--light-sage); border-radius: 5px; font-size: 0.9rem;"></div>
         </div>
 
         <div class="main-nav">
@@ -587,7 +584,7 @@
                 <div id="cupboardList">
                     <!-- Cupboard items will be loaded here -->
                 </div>
-                <button class="btn" onclick="recipeKeeper.addCupboardItem()">Add Item</button>
+                <button class="btn" id="addCupboardItemBtn">Add Item</button>
             </div>
         </div>
 
@@ -600,7 +597,7 @@
                     <option value="">Select a recipe...</option>
                 </select>
             </div>
-            <button class="btn" onclick="recipeKeeper.generateShoppingList()">Generate Shopping List</button>
+            <button class="btn" id="generateShoppingBtn">Generate Shopping List</button>
             <div id="shoppingList" class="shopping-list" style="display: none;">
                 <h3>Shopping List</h3>
                 <div id="shoppingItems"></div>
@@ -613,12 +610,12 @@
             <div class="export-import-section">
                 <h3>Export Recipes</h3>
                 <p>Download all your recipes as a backup file:</p>
-                <button class="btn" onclick="recipeKeeper.exportRecipes()">Export All Recipes</button>
+                <button class="btn" id="exportRecipesBtn">Export All Recipes</button>
                 
                 <h3>Import Recipes</h3>
                 <p>Import recipes from a backup file:</p>
                 <div class="file-input">
-                    <input type="file" id="importFile" accept=".json" onchange="recipeKeeper.importRecipes()">
+                    <input type="file" id="importFile" accept=".json">
                 </div>
             </div>
         </div>
@@ -629,7 +626,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle"></h2>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" id="closeModalBtn">&times;</span>
             </div>
             <div id="modalContent"></div>
         </div>
@@ -1146,86 +1143,75 @@
             document.getElementById('recipeModal').style.display = 'none';
         }
 
-        // Debug function to show info on screen
-        function showDebug(message) {
-            const debugDiv = document.getElementById('debugInfo');
-            if (debugDiv) {
-                debugDiv.innerHTML += message + '<br>';
-            }
-            console.log(message);
-        }
-
         // Global error handler
         window.onerror = function(msg, url, lineNo, columnNo, error) {
-            showDebug('❌ JavaScript Error: ' + msg + ' at line ' + lineNo);
+            console.error('JavaScript Error:', msg, 'at line', lineNo);
             return false;
         };
 
         // Catch unhandled promise rejections
         window.addEventListener('unhandledrejection', function(event) {
-            showDebug('❌ Unhandled Promise Rejection: ' + event.reason);
+            console.error('Unhandled Promise Rejection:', event.reason);
         });
 
         // Initialize app when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            showDebug('DOM loaded, initializing RecipeKeeper...');
             try {
                 recipeKeeper = new RecipeKeeper();
-                showDebug('✅ RecipeKeeper initialized successfully');
+                console.log('RecipeKeeper initialized successfully');
             } catch (error) {
-                showDebug('❌ Error initializing RecipeKeeper: ' + error.message);
+                console.error('Error initializing RecipeKeeper:', error);
             }
         });
 
-        // Add debugging for button clicks
+        // Add event listeners when page loads
         window.addEventListener('load', function() {
-            showDebug('Page fully loaded');
-            showDebug('recipeKeeper instance: ' + (recipeKeeper ? 'Ready' : 'Not ready'));
-            
-            // Test if showDebug function works
-            setTimeout(function() {
-                showDebug('Testing showDebug function...');
-            }, 1000);
-            
-            // Add event listeners to test buttons
-            const testButton1 = document.getElementById('testButton1');
-            const testButton2 = document.getElementById('testButton2');
-            
-            if (testButton1) {
-                testButton1.addEventListener('click', function() {
-                    showDebug('✅ Test Button 1 clicked via event listener!');
-                });
-                showDebug('✅ Test Button 1 event listener added');
-            } else {
-                showDebug('❌ Test Button 1 not found');
-            }
-            
-            if (testButton2) {
-                testButton2.addEventListener('click', function() {
-                    showDebug('✅ Test Button 2 clicked via event listener!');
-                    showSection('add-recipe');
-                });
-                showDebug('✅ Test Button 2 event listener added');
-            } else {
-                showDebug('❌ Test Button 2 not found');
-            }
-            
             // Add event listeners to main navigation buttons
             const navButtons = document.querySelectorAll('.nav-btn');
-            showDebug('Found ' + navButtons.length + ' navigation buttons');
-            
-            navButtons.forEach(function(button, index) {
+            navButtons.forEach(function(button) {
                 const section = button.getAttribute('data-section');
                 if (section) {
                     button.addEventListener('click', function() {
-                        showDebug('✅ Nav button clicked: ' + section);
                         showSection(section);
                     });
-                    showDebug('✅ Added event listener for: ' + section);
-                } else {
-                    showDebug('❌ No data-section attribute for button ' + index);
                 }
             });
+            
+            // Add event listeners to other buttons
+            const generateShoppingBtn = document.getElementById('generateShoppingBtn');
+            if (generateShoppingBtn) {
+                generateShoppingBtn.addEventListener('click', function() {
+                    if (recipeKeeper) recipeKeeper.generateShoppingList();
+                });
+            }
+            
+            const exportRecipesBtn = document.getElementById('exportRecipesBtn');
+            if (exportRecipesBtn) {
+                exportRecipesBtn.addEventListener('click', function() {
+                    if (recipeKeeper) recipeKeeper.exportRecipes();
+                });
+            }
+            
+            const addCupboardItemBtn = document.getElementById('addCupboardItemBtn');
+            if (addCupboardItemBtn) {
+                addCupboardItemBtn.addEventListener('click', function() {
+                    if (recipeKeeper) recipeKeeper.addCupboardItem();
+                });
+            }
+            
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', function() {
+                    closeModal();
+                });
+            }
+            
+            const importFile = document.getElementById('importFile');
+            if (importFile) {
+                importFile.addEventListener('change', function() {
+                    if (recipeKeeper) recipeKeeper.importRecipes();
+                });
+            }
         });
     </script>
 </body>
