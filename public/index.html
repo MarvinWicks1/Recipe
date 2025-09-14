@@ -352,6 +352,16 @@
             min-height: calc(100vh - 200px); /* Ensure content takes full height */
         }
 
+        .cooking-content.single-view {
+            padding: 10px;
+            padding-bottom: 100px;
+            height: calc(100vh - 120px);
+            display: flex;
+            flex-direction: column;
+            max-width: none;
+            margin: 0;
+        }
+
         .ingredient-item {
             display: flex;
             align-items: center;
@@ -702,6 +712,210 @@
 
         .steps-list .step-item:last-child {
             border-bottom: none;
+        }
+
+        /* Single View Layout Styles */
+        .cooking-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--light-sage);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .progress-info {
+            flex: 1;
+        }
+
+        .step-counter {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--deep-sage);
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-small {
+            width: 100%;
+            height: 8px;
+            background: var(--cream);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill-small {
+            height: 100%;
+            background: var(--sage);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .timer-compact {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer-display-small {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--deep-sage);
+            font-family: 'Libre Baskerville', serif;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .timer-buttons-small {
+            display: flex;
+            gap: 5px;
+        }
+
+        .timer-btn-small {
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .timer-btn-small:hover {
+            background: var(--soft-brown);
+        }
+
+        .main-cooking-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .current-step-large {
+            background: var(--sage);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .step-number-large {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-family: 'Libre Baskerville', serif;
+        }
+
+        .step-instruction {
+            font-size: 1.5rem;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .step-timer-large {
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-timer-large:hover {
+            background: var(--soft-brown);
+            transform: translateY(-2px);
+        }
+
+        .ingredients-compact {
+            background: var(--warm-white);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--light-sage);
+            flex-shrink: 0;
+        }
+
+        .ingredients-compact h4 {
+            margin-bottom: 10px;
+            color: var(--deep-sage);
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .ingredient-compact {
+            display: flex;
+            align-items: center;
+            padding: 5px 8px;
+            background: var(--cream);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .ingredient-compact:hover {
+            background: var(--light-sage);
+        }
+
+        .ingredient-compact input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+        }
+
+        .ingredient-compact.checked {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .timer-alert-compact {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            animation: pulse 1s infinite;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .cooking-header-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .timer-compact {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .ingredients-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .step-instruction {
+                font-size: 1.2rem;
+            }
         }
 
         .scaling-section {
@@ -1187,68 +1401,52 @@
                         <h2>👨‍🍳 Cooking: ${this.escapeHtml(recipe.title)}</h2>
                     </div>
                     
-                    <div class="cooking-content">
-                        <!-- Simple progress indicator -->
-                        <div class="simple-progress">
-                            <div class="progress-text" id="progressText">Step 1 of ${recipe.instructions.length}</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="progressFill"></div>
+                    <div class="cooking-content single-view">
+                        <!-- Header with progress and timer -->
+                        <div class="cooking-header-bar">
+                            <div class="progress-info">
+                                <div class="step-counter" id="progressText">1 / ${recipe.instructions.length}</div>
+                                <div class="progress-bar-small">
+                                    <div class="progress-fill-small" id="progressFill"></div>
+                                </div>
+                            </div>
+                            <div class="timer-compact">
+                                <div class="timer-display-small" id="timerDisplay">00:00</div>
+                                <div class="timer-buttons-small">
+                                    <button class="timer-btn-small" id="quickTimer5">5m</button>
+                                    <button class="timer-btn-small" id="quickTimer10">10m</button>
+                                    <button class="timer-btn-small" id="quickTimer15">15m</button>
+                                    <button class="timer-btn-small" id="quickTimer30">30m</button>
+                                    <button class="timer-btn-small" id="timerStopBtn" style="display: none;">Stop</button>
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Current step display -->
-                        <div class="current-step-display" id="currentStepDisplay">
-                            <div class="step-number">1</div>
-                            <div class="step-text">${this.escapeHtml(recipe.instructions[0])}</div>
-                            ${this.extractStepTime(recipe.instructions[0]) ? `<button class="step-timer-btn" data-time="${this.extractStepTime(recipe.instructions[0])}">⏰ ${this.extractStepTime(recipe.instructions[0])} min</button>` : ''}
-                        </div>
-                        
-                        <!-- Timer section - simplified -->
-                        <div class="simple-timer">
-                            <div class="timer-display" id="timerDisplay">00:00</div>
-                            <div class="timer-controls">
-                                <button class="timer-btn" id="quickTimer5">5m</button>
-                                <button class="timer-btn" id="quickTimer10">10m</button>
-                                <button class="timer-btn" id="quickTimer15">15m</button>
-                                <button class="timer-btn" id="quickTimer30">30m</button>
-                                <button class="timer-btn" id="customTimerBtn">Custom</button>
-                                <button class="timer-btn" id="timerStopBtn" style="display: none;">Stop</button>
+                        <!-- Main content area -->
+                        <div class="main-cooking-area">
+                            <!-- Current step - large and prominent -->
+                            <div class="current-step-large" id="currentStepDisplay">
+                                <div class="step-number-large">1</div>
+                                <div class="step-instruction">${this.escapeHtml(recipe.instructions[0])}</div>
+                                ${this.extractStepTime(recipe.instructions[0]) ? `<button class="step-timer-large" data-time="${this.extractStepTime(recipe.instructions[0])}">⏰ ${this.extractStepTime(recipe.instructions[0])}min</button>` : ''}
                             </div>
-                            <div id="timerAlert" class="timer-alert" style="display: none;"></div>
-                        </div>
-                        
-                        <!-- Ingredients checklist - simplified -->
-                        <div class="simple-ingredients">
-                            <h3>📝 Ingredients</h3>
-                            <div id="ingredientsList">
-                                ${recipe.ingredients.map((ingredient, index) => `
-                                    <div class="ingredient-item" data-original="${this.escapeHtml(ingredient)}">
-                                        <input type="checkbox" class="ingredient-checkbox" id="ingredient-${index}">
-                                        <label for="ingredient-${index}">${this.escapeHtml(ingredient)}</label>
-                                    </div>
-                                `).join('')}
+                            
+                            <!-- Ingredients - compact grid -->
+                            <div class="ingredients-compact">
+                                <h4>📝 Ingredients</h4>
+                                <div class="ingredients-grid" id="ingredientsList">
+                                    ${recipe.ingredients.map((ingredient, index) => `
+                                        <label class="ingredient-compact" data-original="${this.escapeHtml(ingredient)}">
+                                            <input type="checkbox" class="ingredient-checkbox" id="ingredient-${index}">
+                                            <span>${this.escapeHtml(ingredient)}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- All steps - collapsible -->
-                        <div class="all-steps">
-                            <button class="toggle-steps-btn" id="toggleStepsBtn">👀 View All Steps</button>
-                            <div class="steps-list" id="stepsList" style="display: none;">
-                                ${recipe.instructions.map((instruction, index) => `
-                                    <div class="step-item ${index === 0 ? 'current' : ''}" id="step-${index}">
-                                        <div class="step-content">
-                                            <input type="checkbox" class="step-checkbox" id="step-checkbox-${index}">
-                                            <div class="step-text">
-                                                <strong>Step ${index + 1}:</strong> ${this.escapeHtml(instruction)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                        
-                        <!-- Extra spacing to ensure last step is visible -->
-                        <div style="height: 200px;"></div>
+                        <!-- Timer alert -->
+                        <div id="timerAlert" class="timer-alert-compact" style="display: none;"></div>
                     </div>
                     
                     <div class="cooking-controls">
@@ -1283,11 +1481,11 @@
                 // Ingredient checkboxes
                 document.querySelectorAll('.ingredient-checkbox').forEach((checkbox, index) => {
                     checkbox.addEventListener('change', () => {
-                        const label = checkbox.nextElementSibling;
+                        const label = checkbox.closest('.ingredient-compact');
                         if (checkbox.checked) {
-                            label.classList.add('ingredient-checked');
+                            label.classList.add('checked');
                         } else {
-                            label.classList.remove('ingredient-checked');
+                            label.classList.remove('checked');
                         }
                     });
                 });
@@ -1336,27 +1534,11 @@
                 document.getElementById('quickTimer15').addEventListener('click', () => this.startTimer(15));
                 document.getElementById('quickTimer30').addEventListener('click', () => this.startTimer(30));
                 
-                // Custom timer button
-                document.getElementById('customTimerBtn').addEventListener('click', () => {
-                    const minutes = prompt('Enter timer duration in minutes:');
-                    if (minutes && !isNaN(minutes) && minutes > 0) {
-                        this.startTimer(parseInt(minutes));
-                    }
-                });
-                
                 // Stop timer button
                 document.getElementById('timerStopBtn').addEventListener('click', () => {
                     this.stopTimer();
                 });
 
-                // Scaling buttons
-                document.getElementById('applyScalingBtn').addEventListener('click', () => {
-                    this.applyScaling();
-                });
-
-                document.getElementById('resetScalingBtn').addEventListener('click', () => {
-                    this.resetScaling();
-                });
 
                 // Cooking control buttons
                 const previousBtn = document.getElementById('cookingPreviousBtn');
@@ -1390,13 +1572,13 @@
                 
                 if (currentStepDisplay) {
                     currentStepDisplay.innerHTML = `
-                        <div class="step-number">${this.cookingState.currentStep + 1}</div>
-                        <div class="step-text">${this.escapeHtml(currentInstruction)}</div>
-                        ${this.extractStepTime(currentInstruction) ? `<button class="step-timer-btn" data-time="${this.extractStepTime(currentInstruction)}">⏰ ${this.extractStepTime(currentInstruction)} min</button>` : ''}
+                        <div class="step-number-large">${this.cookingState.currentStep + 1}</div>
+                        <div class="step-instruction">${this.escapeHtml(currentInstruction)}</div>
+                        ${this.extractStepTime(currentInstruction) ? `<button class="step-timer-large" data-time="${this.extractStepTime(currentInstruction)}">⏰ ${this.extractStepTime(currentInstruction)}min</button>` : ''}
                     `;
                     
                     // Re-attach timer button event listener
-                    const timerBtn = currentStepDisplay.querySelector('.step-timer-btn');
+                    const timerBtn = currentStepDisplay.querySelector('.step-timer-large');
                     if (timerBtn) {
                         timerBtn.addEventListener('click', (e) => {
                             const time = parseInt(e.target.getAttribute('data-time'));
@@ -1404,14 +1586,6 @@
                         });
                     }
                 }
-                
-                // Update the all-steps list
-                document.querySelectorAll('#stepsList .step-item').forEach((step, index) => {
-                    step.classList.remove('current');
-                    if (index === this.cookingState.currentStep) {
-                        step.classList.add('current');
-                    }
-                });
                 
                 this.updateProgress();
             }
@@ -1424,7 +1598,7 @@
                 
                 const percentage = ((this.cookingState.currentStep + 1) / this.cookingState.totalSteps) * 100;
                 progressFill.style.width = `${percentage}%`;
-                progressText.textContent = `Step ${this.cookingState.currentStep + 1} of ${this.cookingState.totalSteps}`;
+                progressText.textContent = `${this.cookingState.currentStep + 1} / ${this.cookingState.totalSteps}`;
             }
 
             toggleAllSteps() {
