@@ -3091,7 +3091,7 @@
                     // Check if this line looks like an ingredient
                     if (this.looksLikeIngredient(line) || line.match(/^[•\-\*]\s*/)) {
                         const cleanIngredient = this.cleanIngredientLine(line);
-                        if (cleanIngredient) {
+                        if (cleanIngredient && cleanIngredient.trim()) {
                             ingredients.push(cleanIngredient);
                         }
                     }
@@ -3117,7 +3117,7 @@
                     // Look for numbered instructions or instruction-like content
                     if (line.match(/^\d+\.\s+[A-Z]/) || this.looksLikeInstruction(line)) {
                         const cleanInstruction = this.cleanInstructionLine(line);
-                        if (cleanInstruction) {
+                        if (cleanInstruction && cleanInstruction.trim()) {
                             instructions.push(cleanInstruction);
                         }
                     }
@@ -3177,7 +3177,7 @@
                     if (line.match(/^\d+\.\s+[A-Z]/)) {
                         foundInstructions = true;
                         const cleanInstruction = this.cleanInstructionLine(line);
-                        if (cleanInstruction) {
+                        if (cleanInstruction && cleanInstruction.trim()) {
                             instructions.push(cleanInstruction);
                         }
                     }
@@ -3185,14 +3185,14 @@
                     else if (this.looksLikeInstruction(line)) {
                         foundInstructions = true;
                         const cleanInstruction = this.cleanInstructionLine(line);
-                        if (cleanInstruction) {
+                        if (cleanInstruction && cleanInstruction.trim()) {
                             instructions.push(cleanInstruction);
                         }
                     }
                     // Check for ingredients (bullet points or ingredient patterns)
                     else if (this.looksLikeIngredient(line) || line.match(/^[•\-\*]\s*/)) {
                         const cleanIngredient = this.cleanIngredientLine(line);
-                        if (cleanIngredient) {
+                        if (cleanIngredient && cleanIngredient.trim()) {
                             ingredients.push(cleanIngredient);
                         }
                     }
@@ -3266,6 +3266,11 @@
                 // Remove bullet points and common prefixes, but preserve measurements
                 let cleaned = line.replace(/^[\s\-\*\•]+\s*/, '').trim();
                 
+                // Skip section headers
+                if (cleaned.toLowerCase().match(/^(ingredients?|instructions?|method|directions?|steps?):?\s*$/)) {
+                    return null;
+                }
+                
                 // Remove common prefixes
                 cleaned = cleaned.replace(/^(for|for the|for this recipe|you'll need|you need|get|buy|purchase|obtain)\s*/i, '');
                 
@@ -3284,6 +3289,11 @@
                 // Remove step numbers and bullet points (but preserve fractions in ingredients)
                 let cleaned = line.replace(/^\d+\.\s*/, '').trim();
                 cleaned = cleaned.replace(/^[\s\-\*\•]+\s*/, '').trim();
+                
+                // Skip section headers
+                if (cleaned.toLowerCase().match(/^(ingredients?|instructions?|method|directions?|steps?):?\s*$/)) {
+                    return null;
+                }
                 
                 // Clean up extra whitespace
                 cleaned = cleaned.replace(/\s+/g, ' ').trim();
