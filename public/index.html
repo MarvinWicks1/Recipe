@@ -2808,11 +2808,16 @@
                 prepTime = metadata.prepTime;
                 cookTime = metadata.cookTime;
                 
-                // Find section boundaries
-                const sections = this.findSections(lines);
+                // Find section boundaries - try both methods
+                let sections = this.findSections(lines);
+                
+                // If no clear section headers found, try content-based detection
+                if (!sections.ingredients && !sections.instructions) {
+                    sections = this.findSectionsByContent(lines);
+                }
                 
                 // Extract ingredients
-                if (sections.ingredients) {
+                if (sections.ingredients !== undefined) {
                     ingredients = this.extractIngredients(lines, sections.ingredients);
                 } else {
                     // Try to find ingredients without clear section headers
@@ -2820,7 +2825,7 @@
                 }
                 
                 // Extract instructions
-                if (sections.instructions) {
+                if (sections.instructions !== undefined) {
                     instructions = this.extractInstructions(lines, sections.instructions);
                 } else {
                     // Try to find instructions without clear section headers
@@ -3018,6 +3023,34 @@
                 return sections;
             }
 
+            findSectionsByContent(lines) {
+                const sections = {};
+                let foundIngredients = false;
+                let foundInstructions = false;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    // Look for bullet points or numbered lists to identify sections
+                    if (line.match(/^[•\-\*]\s*/) || line.match(/^\d+\.\s*/)) {
+                        // Check if this looks like ingredients (has measurements, food items)
+                        if (this.looksLikeIngredient(line)) {
+                            if (!foundIngredients) {
+                                sections.ingredients = i;
+                                foundIngredients = true;
+                            }
+                        } else if (this.looksLikeInstruction(line)) {
+                            if (!foundInstructions) {
+                                sections.instructions = i;
+                                foundInstructions = true;
+                            }
+                        }
+                    }
+                }
+                
+                return sections;
+            }
+
             extractIngredients(lines, startIndex) {
                 const ingredients = [];
                 
@@ -3151,13 +3184,25 @@
                     return false;
                 }
                 
-                // Look for ingredient patterns
+                // Skip lines that start with numbers followed by periods (numbered instructions)
+                if (line.match(/^\d+\.\s+[A-Z]/)) {
+                    return false;
+                }
+                
+                // Look for ingredient patterns - enhanced
                 const ingredientPatterns = [
+                    // Measurements
                     /\d+\s*(?:cups?|tablespoons?|teaspoons?|tbsp|tsp|oz|ounces?|pounds?|lbs?|grams?|g|ml|liters?|l)/i,
-                    /\d+\s*(?:small|medium|large|whole|half|quarter)\s+\w+/i,
+                    // Fractions with measurements
+                    /\d+\/\d+\s*(?:cup|tablespoon|teaspoon|tbsp|tsp)/i,
+                    // Quantities with descriptors
+                    /\d+\s*(?:small|medium|large|whole|half|quarter|boneless|skinless|cloves?|pieces?|slices?)\s+\w+/i,
+                    // Simple quantities
                     /\d+\s+\w+/i,
-                    /^\w+\s+(?:cup|tablespoon|teaspoon|tbsp|tsp|oz|ounce|pound|lb|gram|g|ml|liter|l)/i,
-                    /^\w+\s+(?:small|medium|large|whole|half|quarter)/i
+                    // Food items
+                    /(?:salt|pepper|garlic|onion|butter|oil|flour|sugar|eggs?|milk|cream|cheese|bread|rice|pasta|meat|chicken|beef|pork|fish|vegetables?|herbs?|spices?|spinach|tomatoes?|basil|parmesan|broth|breasts?|thighs?)/i,
+                    // Common ingredients
+                    /(?:fresh|dried|chopped|minced|grated|sliced|diced|crushed|optional|to taste)/
                 ];
                 
                 return ingredientPatterns.some(pattern => pattern.test(line));
@@ -3166,13 +3211,20 @@
             looksLikeInstruction(line) {
                 const lowerLine = line.toLowerCase();
                 
+                // Check for numbered instructions (e.g., "1. Sear Chicken:")
+                if (line.match(/^\d+\.\s+[A-Z]/)) {
+                    return true;
+                }
+                
+                // Check for instruction keywords
                 const instructionKeywords = [
                     'heat', 'preheat', 'mix', 'add', 'cook', 'bake', 'simmer', 'boil', 'fry', 'sauté',
                     'stir', 'place', 'combine', 'blend', 'whisk', 'beat', 'fold', 'pour', 'spread',
                     'sprinkle', 'season', 'taste', 'serve', 'garnish', 'decorate', 'arrange',
                     'remove', 'drain', 'rinse', 'wash', 'peel', 'chop', 'slice', 'dice', 'mince',
                     'grate', 'shred', 'crush', 'mash', 'squeeze', 'zest', 'juice', 'melt',
-                    'cool', 'warm', 'chill', 'refrigerate', 'freeze', 'thaw', 'rest', 'stand'
+                    'cool', 'warm', 'chill', 'refrigerate', 'freeze', 'thaw', 'rest', 'stand',
+                    'sear', 'brown', 'skillet', 'pan', 'oven', 'return', 'spoon', 'garnish'
                 ];
                 
                 return instructionKeywords.some(keyword => lowerLine.includes(keyword));
