@@ -831,6 +831,116 @@
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .timer-section {
+            background: var(--terracotta);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .timer-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: var(--warm-white);
+            color: var(--terracotta);
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .timer-btn:hover {
+            background: var(--cream);
+            transform: translateY(-2px);
+        }
+
+        .timer-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .timer-btn.active {
+            background: var(--deep-sage);
+            color: white;
+        }
+
+        .step-timer-btn {
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .step-timer-btn:hover {
+            background: var(--soft-brown);
+            transform: translateY(-1px);
+        }
+
+        .step-timer-btn.active {
+            background: var(--deep-sage);
+        }
+
+        .timer-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--terracotta);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 3000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: timerPulse 0.5s ease-in-out;
+        }
+
+        @keyframes timerPulse {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .step-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light-sage);
+            position: relative;
+        }
+
+        .step-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .step-text {
+            flex: 1;
+            margin-right: 10px;
         }
 
         .btn-cooking {
@@ -3403,6 +3513,16 @@
                     </div>
                     
                     <div class="cooking-content">
+                        <div class="timer-section" id="timerSection" style="display: none;">
+                            <h3>⏰ Timer</h3>
+                            <div class="timer-display" id="timerDisplay">00:00</div>
+                            <div class="timer-controls">
+                                <button class="timer-btn" id="startTimerBtn" onclick="recipeKeeper.startTimer()">Start</button>
+                                <button class="timer-btn" id="pauseTimerBtn" onclick="recipeKeeper.pauseTimer()" disabled>Pause</button>
+                                <button class="timer-btn" id="resetTimerBtn" onclick="recipeKeeper.resetTimer()">Reset</button>
+                            </div>
+                        </div>
+                        
                         <div class="ingredients-section">
                             <h3>📝 Ingredients</h3>
                             <div id="ingredientsList">
@@ -3418,11 +3538,19 @@
                         <div class="instructions-section">
                             <h3>👨‍🍳 Instructions</h3>
                             <div id="instructionsList">
-                                ${instructions.map((instruction, index) => `
-                                    <div class="step-item" id="step-${index}">
-                                        <strong>Step ${index + 1}:</strong> ${this.escapeHtml(instruction)}
-                                    </div>
-                                `).join('')}
+                                ${instructions.map((instruction, index) => {
+                                    const timerMatch = this.extractTimerFromInstruction(instruction);
+                                    return `
+                                        <div class="step-item" id="step-${index}">
+                                            <div class="step-content">
+                                                <div class="step-text">
+                                                    <strong>Step ${index + 1}:</strong> ${this.escapeHtml(instruction)}
+                                                </div>
+                                                ${timerMatch ? `<button class="step-timer-btn" onclick="recipeKeeper.setTimerFromStep(${index}, ${timerMatch.minutes})">⏰ ${timerMatch.minutes}min</button>` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
                             </div>
                         </div>
                     </div>
@@ -3442,6 +3570,10 @@
                     totalSteps: instructions.length,
                     recipeId: recipeId
                 };
+                
+                // Initialize timer state
+                this.timerState = null;
+                this.timerInterval = null;
                 
                 this.updateCurrentStep();
                 this.initializeCookingEventListeners();
@@ -3557,6 +3689,12 @@
                     cookingMode.remove();
                 }
                 
+                // Stop any running timer
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                
                 // Re-enable screen lock
                 if (navigator.wakeLock) {
                     navigator.wakeLock.release().catch(err => {
@@ -3565,6 +3703,165 @@
                 }
                 
                 this.cookingState = null;
+                this.timerState = null;
+            }
+
+            // Timer functionality
+            extractTimerFromInstruction(instruction) {
+                const timerRegex = /(?:for|about|around|approximately|roughly)\s+(\d+)\s*(?:minutes?|mins?|min)/i;
+                const match = instruction.match(timerRegex);
+                if (match) {
+                    return { minutes: parseInt(match[1]) };
+                }
+                return null;
+            }
+
+            setTimerFromStep(stepIndex, minutes) {
+                this.timerState = {
+                    totalMinutes: minutes,
+                    remainingSeconds: minutes * 60,
+                    isRunning: false,
+                    stepIndex: stepIndex
+                };
+                
+                this.updateTimerDisplay();
+                this.showTimerSection();
+                this.highlightTimerStep(stepIndex);
+            }
+
+            showTimerSection() {
+                const timerSection = document.getElementById('timerSection');
+                if (timerSection) {
+                    timerSection.style.display = 'block';
+                }
+            }
+
+            hideTimerSection() {
+                const timerSection = document.getElementById('timerSection');
+                if (timerSection) {
+                    timerSection.style.display = 'none';
+                }
+            }
+
+            highlightTimerStep(stepIndex) {
+                // Remove previous timer step highlighting
+                document.querySelectorAll('.step-timer-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Highlight current timer step
+                const stepElement = document.getElementById(`step-${stepIndex}`);
+                if (stepElement) {
+                    const timerBtn = stepElement.querySelector('.step-timer-btn');
+                    if (timerBtn) {
+                        timerBtn.classList.add('active');
+                    }
+                }
+            }
+
+            updateTimerDisplay() {
+                const timerDisplay = document.getElementById('timerDisplay');
+                if (timerDisplay && this.timerState) {
+                    const minutes = Math.floor(this.timerState.remainingSeconds / 60);
+                    const seconds = this.timerState.remainingSeconds % 60;
+                    timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }
+
+            startTimer() {
+                if (!this.timerState || this.timerState.remainingSeconds <= 0) return;
+                
+                this.timerState.isRunning = true;
+                document.getElementById('startTimerBtn').disabled = true;
+                document.getElementById('pauseTimerBtn').disabled = false;
+                
+                this.timerInterval = setInterval(() => {
+                    this.timerState.remainingSeconds--;
+                    this.updateTimerDisplay();
+                    
+                    if (this.timerState.remainingSeconds <= 0) {
+                        this.timerComplete();
+                    }
+                }, 1000);
+            }
+
+            pauseTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                
+                this.timerState.isRunning = false;
+                document.getElementById('startTimerBtn').disabled = false;
+                document.getElementById('pauseTimerBtn').disabled = true;
+            }
+
+            resetTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                
+                if (this.timerState) {
+                    this.timerState.remainingSeconds = this.timerState.totalMinutes * 60;
+                    this.timerState.isRunning = false;
+                }
+                
+                document.getElementById('startTimerBtn').disabled = false;
+                document.getElementById('pauseTimerBtn').disabled = true;
+                this.updateTimerDisplay();
+            }
+
+            timerComplete() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                
+                this.timerState.isRunning = false;
+                document.getElementById('startTimerBtn').disabled = false;
+                document.getElementById('pauseTimerBtn').disabled = true;
+                
+                // Show notification
+                this.showTimerNotification();
+                
+                // Play notification sound if supported
+                this.playNotificationSound();
+            }
+
+            showTimerNotification() {
+                const notification = document.createElement('div');
+                notification.className = 'timer-notification';
+                notification.innerHTML = '⏰ Timer Complete! ⏰';
+                document.body.appendChild(notification);
+                
+                // Remove notification after 5 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+            }
+
+            playNotificationSound() {
+                // Create a simple beep sound using Web Audio API
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (error) {
+                    console.log('Audio notification not supported:', error);
+                }
             }
 
             // Social Media & Sharing Methods
