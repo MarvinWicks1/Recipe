@@ -521,6 +521,7 @@
             <h1>🍳 Recipe Keeper v2</h1>
             <p>Your personal recipe collection</p>
             <button onclick="alert('JavaScript is working!')" style="margin-top: 10px; padding: 5px 10px; background: var(--terracotta); color: white; border: none; border-radius: 5px;">Test JavaScript</button>
+            <div id="debugInfo" style="margin-top: 10px; padding: 10px; background: var(--light-sage); border-radius: 5px; font-size: 0.9rem;"></div>
         </div>
 
         <div class="main-nav">
@@ -1128,21 +1129,30 @@
             document.getElementById('recipeModal').style.display = 'none';
         }
 
+        // Debug function to show info on screen
+        function showDebug(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            if (debugDiv) {
+                debugDiv.innerHTML += message + '<br>';
+            }
+            console.log(message);
+        }
+
         // Initialize app when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing RecipeKeeper...');
+            showDebug('DOM loaded, initializing RecipeKeeper...');
             try {
                 recipeKeeper = new RecipeKeeper();
-                console.log('RecipeKeeper initialized successfully');
+                showDebug('✅ RecipeKeeper initialized successfully');
             } catch (error) {
-                console.error('Error initializing RecipeKeeper:', error);
+                showDebug('❌ Error initializing RecipeKeeper: ' + error.message);
             }
         });
 
         // Add debugging for button clicks
         window.addEventListener('load', function() {
-            console.log('Page fully loaded');
-            console.log('recipeKeeper instance:', recipeKeeper);
+            showDebug('Page fully loaded');
+            showDebug('recipeKeeper instance: ' + (recipeKeeper ? 'Ready' : 'Not ready'));
         });
     </script>
 </body>
