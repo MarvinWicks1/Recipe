@@ -1768,7 +1768,13 @@
                     <label for="quickRecipeText">Paste your complete recipe here:</label>
                     <textarea id="quickRecipeText" placeholder="Paste your recipe here... The app will automatically organize ingredients, instructions, and extract cooking times and servings." style="min-height: 300px;"></textarea>
                 </div>
-                <button id="parseRecipeBtn" class="btn">Parse & Add Recipe</button>
+                <button id="parseRecipeBtn" class="btn">Parse Recipe</button>
+                <div id="parsePreview" style="display: none; margin-top: 20px; padding: 20px; background: var(--cream); border-radius: 10px;">
+                    <h3>Parsed Recipe Preview</h3>
+                    <div id="parsePreviewContent"></div>
+                    <button id="confirmAddRecipe" class="btn" style="margin-top: 15px;">Add This Recipe</button>
+                    <button id="cancelParse" class="btn" style="margin-top: 15px; margin-left: 10px; background: var(--soft-brown);">Cancel</button>
+                </div>
             </div>
         </div>
 
@@ -2711,22 +2717,75 @@
 
                 try {
                     const parsed = this.parseRecipeText(recipeText);
-                    
-                    // Populate the structured form with parsed data
-                    document.getElementById('recipeTitle').value = parsed.title;
-                    document.getElementById('recipeIngredients').value = parsed.ingredients.join('\n');
-                    document.getElementById('recipeInstructions').value = parsed.instructions.join('\n');
-                    if (parsed.servings) document.getElementById('recipeServings').value = parsed.servings;
-                    if (parsed.prepTime) document.getElementById('recipePrepTime').value = parsed.prepTime;
-                    if (parsed.cookTime) document.getElementById('recipeCookTime').value = parsed.cookTime;
-                    
-                    // Switch to structured form to show the parsed data
-                    document.getElementById('structuredBtn').click();
-                    
-                    alert('Recipe parsed successfully! Review and click "Add Recipe" to save.');
+                    this.showParsePreview(parsed);
                 } catch (error) {
                     alert('Error parsing recipe: ' + error.message);
                 }
+            }
+
+            showParsePreview(parsed) {
+                const preview = document.getElementById('parsePreview');
+                const content = document.getElementById('parsePreviewContent');
+                
+                content.innerHTML = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>Title:</strong> ${parsed.title}
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Servings:</strong> ${parsed.servings || 'Not specified'}
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Prep Time:</strong> ${parsed.prepTime ? parsed.prepTime + ' minutes' : 'Not specified'}
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Cook Time:</strong> ${parsed.cookTime ? parsed.cookTime + ' minutes' : 'Not specified'}
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Ingredients (${parsed.ingredients.length}):</strong>
+                        <ul style="margin-top: 5px; padding-left: 20px;">
+                            ${parsed.ingredients.map(ing => `<li>${ing}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div>
+                        <strong>Instructions (${parsed.instructions.length} steps):</strong>
+                        <ol style="margin-top: 5px; padding-left: 20px;">
+                            ${parsed.instructions.map(inst => `<li>${inst}</li>`).join('')}
+                        </ol>
+                    </div>
+                `;
+                
+                preview.style.display = 'block';
+                
+                // Store parsed data for confirmation
+                this.currentParsedRecipe = parsed;
+                
+                // Scroll to preview
+                preview.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            confirmAddParsedRecipe() {
+                if (!this.currentParsedRecipe) return;
+                
+                const parsed = this.currentParsedRecipe;
+                
+                // Populate the structured form with parsed data
+                document.getElementById('recipeTitle').value = parsed.title;
+                document.getElementById('recipeIngredients').value = parsed.ingredients.join('\n');
+                document.getElementById('recipeInstructions').value = parsed.instructions.join('\n');
+                if (parsed.servings) document.getElementById('recipeServings').value = parsed.servings;
+                if (parsed.prepTime) document.getElementById('recipePrepTime').value = parsed.prepTime;
+                if (parsed.cookTime) document.getElementById('recipeCookTime').value = parsed.cookTime;
+                
+                // Hide preview
+                document.getElementById('parsePreview').style.display = 'none';
+                
+                // Switch to structured form to show the parsed data
+                document.getElementById('structuredBtn').click();
+                
+                // Clear the quick add form
+                document.getElementById('quickRecipeText').value = '';
+                
+                alert('Recipe parsed successfully! Review and click "Add Recipe" to save.');
             }
 
             parseRecipeText(text) {
@@ -2801,32 +2860,49 @@
             extractTitle(text) {
                 const lines = text.split('\n').map(line => line.trim()).filter(line => line);
                 
-                // Look for common title patterns
+                // Enhanced title patterns
                 const titlePatterns = [
-                    /^(recipe:?\s*)?(.+)$/i,
-                    /^(.+?)\s*-\s*(?:recipe|serves|prep|ingredients)/i,
+                    // Recipe with colon or dash
+                    /^(recipe:?\s*)?(.+?)(?:\s*[-–—]\s*|$)/i,
+                    // Title before parentheses
                     /^(.+?)\s*\(/i,
-                    /^(.+?)\s*\[/i
+                    // Title before brackets
+                    /^(.+?)\s*\[/i,
+                    // Title before serving info
+                    /^(.+?)\s*(?:serves?|makes?|yields?)/i,
+                    // Clean title (first line if it looks like a title)
+                    /^(.+)$/i
                 ];
                 
-                for (let i = 0; i < Math.min(3, lines.length); i++) {
+                for (let i = 0; i < Math.min(5, lines.length); i++) {
                     const line = lines[i];
                     const lowerLine = line.toLowerCase();
                     
                     // Skip if it looks like metadata or section headers
                     if (lowerLine.includes('ingredients') || lowerLine.includes('instructions') || 
+                        lowerLine.includes('method') || lowerLine.includes('directions') ||
                         lowerLine.includes('serves') || lowerLine.includes('prep') || 
                         lowerLine.includes('cook') || lowerLine.includes('time') ||
+                        lowerLine.includes('bake') || lowerLine.includes('simmer') ||
                         lowerLine.match(/^\d+/) || lowerLine.includes('minutes') ||
-                        lowerLine.includes('hours')) {
+                        lowerLine.includes('hours') || lowerLine.includes('cups') ||
+                        lowerLine.includes('tablespoons') || lowerLine.includes('teaspoons')) {
                         continue;
                     }
+                    
+                    // Skip very short or very long lines
+                    if (line.length < 3 || line.length > 150) continue;
+                    
+                    // Skip lines that are mostly numbers or special characters
+                    if (line.match(/^[\d\s\-–—\(\)\[\]\/\\]+$/)) continue;
                     
                     // Try title patterns
                     for (const pattern of titlePatterns) {
                         const match = line.match(pattern);
-                        if (match && match[2] && match[2].length > 3 && match[2].length < 100) {
-                            return match[2].trim();
+                        if (match && match[1] && match[1].length > 3 && match[1].length < 100) {
+                            const title = match[1].trim();
+                            // Clean up common prefixes
+                            return title.replace(/^(recipe:?\s*)/i, '').trim();
                         }
                     }
                 }
@@ -2853,15 +2929,34 @@
 
             extractPrepTime(text) {
                 const patterns = [
+                    // Hours and minutes
+                    /(?:prep|preparation)\s*(?:time)?:?\s*(\d+)\s*(?:hr|hour|hours?)\s*(?:and\s*)?(\d+)?\s*(?:min|minutes?)?/gi,
+                    // Just hours
+                    /(?:prep|preparation)\s*(?:time)?:?\s*(\d+)\s*(?:hr|hour|hours?)/gi,
+                    // Just minutes
                     /(?:prep|preparation)\s*(?:time)?:?\s*(\d+)\s*(?:min|minutes?)/gi,
-                    /prep:?\s*(\d+)\s*(?:min|minutes?)/gi,
-                    /(\d+)\s*(?:min|minutes?)\s*prep/gi
+                    // Short form
+                    /prep:?\s*(\d+)\s*(?:min|minutes?|hr|hour|hours?)/gi,
+                    // Reverse order
+                    /(\d+)\s*(?:min|minutes?|hr|hour|hours?)\s*prep/gi
                 ];
                 
                 for (const pattern of patterns) {
                     const match = pattern.exec(text);
                     if (match) {
-                        return parseInt(match[1]);
+                        if (match[2]) {
+                            // Hours and minutes
+                            const hours = parseInt(match[1]) || 0;
+                            const minutes = parseInt(match[2]) || 0;
+                            return hours * 60 + minutes;
+                        } else {
+                            const time = parseInt(match[1]);
+                            // If it's hours (common for prep time)
+                            if (match[0].toLowerCase().includes('hr') || match[0].toLowerCase().includes('hour')) {
+                                return time * 60;
+                            }
+                            return time;
+                        }
                     }
                 }
                 return null;
@@ -2869,16 +2964,35 @@
 
             extractCookTime(text) {
                 const patterns = [
-                    /(?:cook|bake|simmer|roast)\s*(?:time)?:?\s*(\d+)\s*(?:min|minutes?)/gi,
-                    /cook:?\s*(\d+)\s*(?:min|minutes?)/gi,
-                    /bake:?\s*(\d+)\s*(?:min|minutes?)/gi,
-                    /(\d+)\s*(?:min|minutes?)\s*(?:cook|bake|simmer)/gi
+                    // Hours and minutes
+                    /(?:cook|bake|simmer|roast|barbecue|grill)\s*(?:time)?:?\s*(\d+)\s*(?:hr|hour|hours?)\s*(?:and\s*)?(\d+)?\s*(?:min|minutes?)?/gi,
+                    // Just hours
+                    /(?:cook|bake|simmer|roast|barbecue|grill)\s*(?:time)?:?\s*(\d+)\s*(?:hr|hour|hours?)/gi,
+                    // Just minutes
+                    /(?:cook|bake|simmer|roast|barbecue|grill)\s*(?:time)?:?\s*(\d+)\s*(?:min|minutes?)/gi,
+                    // Short forms
+                    /cook:?\s*(\d+)\s*(?:min|minutes?|hr|hour|hours?)/gi,
+                    /bake:?\s*(\d+)\s*(?:min|minutes?|hr|hour|hours?)/gi,
+                    // Reverse order
+                    /(\d+)\s*(?:min|minutes?|hr|hour|hours?)\s*(?:cook|bake|simmer|roast)/gi
                 ];
                 
                 for (const pattern of patterns) {
                     const match = pattern.exec(text);
                     if (match) {
-                        return parseInt(match[1]);
+                        if (match[2]) {
+                            // Hours and minutes
+                            const hours = parseInt(match[1]) || 0;
+                            const minutes = parseInt(match[2]) || 0;
+                            return hours * 60 + minutes;
+                        } else {
+                            const time = parseInt(match[1]);
+                            // If it's hours
+                            if (match[0].toLowerCase().includes('hr') || match[0].toLowerCase().includes('hour')) {
+                                return time * 60;
+                            }
+                            return time;
+                        }
                     }
                 }
                 return null;
@@ -2888,15 +3002,15 @@
                 const sections = {};
                 
                 for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].toLowerCase();
+                    const line = lines[i].toLowerCase().trim();
                     
-                    // Ingredients section
-                    if (line.match(/^(ingredients?|what you need|you'll need|for the)/)) {
+                    // Ingredients section - enhanced patterns
+                    if (line.match(/^(ingredients?|what you need|you'll need|for the|shopping list|items needed|grocery list|what's needed|you will need|required ingredients?|ingredient list)/)) {
                         sections.ingredients = i;
                     }
                     
-                    // Instructions section
-                    if (line.match(/^(instructions?|method|directions?|steps?|how to|procedure|preparation)/)) {
+                    // Instructions section - enhanced patterns
+                    if (line.match(/^(instructions?|method|directions?|steps?|how to|procedure|preparation|directions|recipe steps|cooking method|how to make|how to prepare|what to do|process|technique)/)) {
                         sections.instructions = i;
                     }
                 }
@@ -3066,12 +3180,35 @@
 
             cleanIngredientLine(line) {
                 // Remove bullet points, numbers, and common prefixes
-                return line.replace(/^[\s\-\*\•\d+\.\)\]]+\s*/, '').trim();
+                let cleaned = line.replace(/^[\s\-\*\•\d+\.\)\]]+\s*/, '').trim();
+                
+                // Remove common prefixes
+                cleaned = cleaned.replace(/^(for|for the|for this recipe|you'll need|you need|get|buy|purchase|obtain)\s*/i, '');
+                
+                // Clean up extra whitespace
+                cleaned = cleaned.replace(/\s+/g, ' ').trim();
+                
+                // Capitalize first letter
+                if (cleaned.length > 0) {
+                    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+                }
+                
+                return cleaned;
             }
 
             cleanInstructionLine(line) {
                 // Remove step numbers and bullet points
-                return line.replace(/^[\s\-\*\•\d+\.\)\]]+\s*/, '').trim();
+                let cleaned = line.replace(/^[\s\-\*\•\d+\.\)\]]+\s*/, '').trim();
+                
+                // Clean up extra whitespace
+                cleaned = cleaned.replace(/\s+/g, ' ').trim();
+                
+                // Capitalize first letter
+                if (cleaned.length > 0) {
+                    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+                }
+                
+                return cleaned;
             }
 
             cleanIngredients(ingredients) {
@@ -3254,6 +3391,21 @@
             if (parseRecipeBtn) {
                 parseRecipeBtn.addEventListener('click', function() {
                     if (recipeKeeper) recipeKeeper.parseAndAddRecipe();
+                });
+            }
+
+            // Preview confirmation buttons
+            const confirmAddRecipe = document.getElementById('confirmAddRecipe');
+            if (confirmAddRecipe) {
+                confirmAddRecipe.addEventListener('click', function() {
+                    if (recipeKeeper) recipeKeeper.confirmAddParsedRecipe();
+                });
+            }
+
+            const cancelParse = document.getElementById('cancelParse');
+            if (cancelParse) {
+                cancelParse.addEventListener('click', function() {
+                    document.getElementById('parsePreview').style.display = 'none';
                 });
             }
         });
