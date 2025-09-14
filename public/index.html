@@ -329,22 +329,32 @@
             height: 100dvh;
             background: var(--warm-white);
             z-index: 2000;
-            overflow-y: auto;
-            overflow-x: hidden;
+            overflow: hidden;
             font-size: 1.2rem;
             touch-action: manipulation;
             -webkit-user-select: none;
             user-select: none;
-            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Prevent body scroll when cooking mode is active */
+        body.cooking-active {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
         }
 
 
         /* Full page cooking mode styles */
         .fullpage-cooking {
-            min-height: 100vh;
+            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             padding: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         .cooking-top-bar {
@@ -442,6 +452,8 @@
             flex: 1;
             padding: 30px 20px;
             background: var(--warm-white);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .page-title {
@@ -465,6 +477,7 @@
             gap: 20px;
             max-width: 1200px;
             margin: 0 auto;
+            padding-bottom: 100px; /* Extra space for scrolling */
         }
 
         .ingredient-card {
@@ -545,6 +558,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .step-display {
@@ -2074,8 +2089,9 @@
                     </div>
                 `;
 
-                // Hide main page content
+                // Hide main page content and prevent body scroll
                 document.querySelector('.container').style.display = 'none';
+                document.body.classList.add('cooking-active');
                 
                 document.body.appendChild(cookingMode);
                 
@@ -2322,8 +2338,9 @@
                     cookingMode.remove();
                 }
                 
-                // Show main page content again
+                // Show main page content again and restore body scroll
                 document.querySelector('.container').style.display = 'block';
+                document.body.classList.remove('cooking-active');
                 
                 if (navigator.wakeLock) {
                     navigator.wakeLock.release().catch(err => {
