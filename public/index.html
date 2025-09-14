@@ -584,7 +584,7 @@
                 <div id="cupboardList">
                     <!-- Cupboard items will be loaded here -->
                 </div>
-                <button class="btn" onclick="addCupboardItem()">Add Item</button>
+                <button class="btn" onclick="recipeKeeper.addCupboardItem()">Add Item</button>
             </div>
         </div>
 
@@ -597,7 +597,7 @@
                     <option value="">Select a recipe...</option>
                 </select>
             </div>
-            <button class="btn" onclick="generateShoppingList()">Generate Shopping List</button>
+            <button class="btn" onclick="recipeKeeper.generateShoppingList()">Generate Shopping List</button>
             <div id="shoppingList" class="shopping-list" style="display: none;">
                 <h3>Shopping List</h3>
                 <div id="shoppingItems"></div>
@@ -610,12 +610,12 @@
             <div class="export-import-section">
                 <h3>Export Recipes</h3>
                 <p>Download all your recipes as a backup file:</p>
-                <button class="btn" onclick="exportRecipes()">Export All Recipes</button>
+                <button class="btn" onclick="recipeKeeper.exportRecipes()">Export All Recipes</button>
                 
                 <h3>Import Recipes</h3>
                 <p>Import recipes from a backup file:</p>
                 <div class="file-input">
-                    <input type="file" id="importFile" accept=".json" onchange="importRecipes()">
+                    <input type="file" id="importFile" accept=".json" onchange="recipeKeeper.importRecipes()">
                 </div>
             </div>
         </div>
