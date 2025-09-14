@@ -2111,43 +2111,13 @@
                     });
                 });
 
-                // Step checkboxes in all-steps list
-                document.querySelectorAll('#stepsList .step-checkbox').forEach((checkbox, index) => {
-                    checkbox.addEventListener('change', () => {
-                        const stepItem = checkbox.closest('.step-item');
-                        if (checkbox.checked) {
-                            stepItem.classList.add('step-completed');
-                            this.cookingState.completedSteps.add(index);
-                        } else {
-                            stepItem.classList.remove('step-completed');
-                            this.cookingState.completedSteps.delete(index);
-                        }
-                    });
-                });
+                // Step checkboxes not used in simple structure
 
-                // Toggle all steps button
-                document.getElementById('toggleStepsBtn').addEventListener('click', () => {
-                    this.toggleAllSteps();
-                });
+                // Toggle all steps button not used in simple structure
 
-                // Click on step in all-steps list to jump to it
-                document.querySelectorAll('#stepsList .step-item').forEach((stepItem, index) => {
-                    stepItem.addEventListener('click', (e) => {
-                        // Don't trigger if clicking on checkbox
-                        if (e.target.type !== 'checkbox') {
-                            this.cookingState.currentStep = index;
-                            this.updateCurrentStep();
-                        }
-                    });
-                });
+                // Step list click handlers not used in simple structure
 
-                // Step timer buttons
-                document.querySelectorAll('.step-timer-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const time = parseInt(e.target.getAttribute('data-time'));
-                        this.startTimer(time);
-                    });
-                });
+                // Step timer buttons handled in updateCurrentStep method
 
                 // Quick timer buttons
                 document.getElementById('quickTimer5').addEventListener('click', () => this.startTimer(5));
@@ -2215,32 +2185,20 @@
             }
 
             updateProgress() {
-                const progressFill = document.getElementById('progressFill');
                 const progressText = document.getElementById('progressText');
                 
-                if (!progressFill || !progressText) return;
+                if (!progressText) return;
                 
                 if (this.cookingState.isIngredientsMode) {
-                    progressFill.style.width = '0%';
                     progressText.textContent = 'Ingredients Check';
                 } else {
-                    const percentage = ((this.cookingState.currentStep + 1) / this.cookingState.totalSteps) * 100;
-                    progressFill.style.width = `${percentage}%`;
                     progressText.textContent = `${this.cookingState.currentStep + 1} / ${this.cookingState.totalSteps}`;
                 }
             }
 
             toggleAllSteps() {
-                const stepsList = document.getElementById('stepsList');
-                const toggleBtn = document.getElementById('toggleStepsBtn');
-                
-                if (stepsList.style.display === 'none') {
-                    stepsList.style.display = 'block';
-                    toggleBtn.textContent = '👀 Hide All Steps';
-                } else {
-                    stepsList.style.display = 'none';
-                    toggleBtn.textContent = '👀 View All Steps';
-                }
+                // This method is not used in the new simple structure
+                return;
             }
 
             nextStep() {
