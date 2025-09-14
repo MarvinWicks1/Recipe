@@ -1107,8 +1107,6 @@
 
         // Global functions
         function showSection(sectionName) {
-            showDebug('Switching to section: ' + sectionName);
-            
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
@@ -1123,11 +1121,8 @@
             const targetSection = document.getElementById(sectionName);
             if (targetSection) {
                 targetSection.classList.add('active');
-                showDebug('✅ Section ' + sectionName + ' is now active');
-            } else {
-                showDebug('❌ Section ' + sectionName + ' not found');
             }
-            
+
             // Add active class to clicked button
             if (event && event.target) {
                 event.target.classList.add('active');
