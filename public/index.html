@@ -488,6 +488,93 @@
             color: white;
         }
 
+        .progress-section {
+            background: var(--light-sage);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--cream);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            border: 2px solid var(--sage);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--sage), var(--terracotta));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: var(--deep-sage);
+            font-size: 1.1rem;
+        }
+
+        .step-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--cream);
+            border-radius: 10px;
+        }
+
+        .step-jump {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-jump select {
+            padding: 8px 12px;
+            border: 2px solid var(--light-sage);
+            border-radius: 8px;
+            background: var(--warm-white);
+            color: var(--deep-sage);
+            font-weight: 600;
+        }
+
+        .step-indicators {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .step-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--light-sage);
+            border: 2px solid var(--sage);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator.current {
+            background: var(--sage);
+            transform: scale(1.2);
+        }
+
+        .step-indicator.completed {
+            background: var(--terracotta);
+        }
+
+        .step-indicator:hover {
+            transform: scale(1.1);
+        }
+
         .btn-cooking {
             background: white;
             color: var(--sage);
@@ -924,6 +1011,29 @@
                     </div>
                     
                     <div class="cooking-content">
+                        <div class="progress-section">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <div class="progress-text" id="progressText">Step 1 of ${recipe.instructions.length}</div>
+                        </div>
+                        
+                        <div class="step-navigation">
+                            <div class="step-jump">
+                                <label for="stepJumpSelect">Jump to:</label>
+                                <select id="stepJumpSelect">
+                                    ${recipe.instructions.map((_, index) => 
+                                        `<option value="${index}">Step ${index + 1}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                            <div class="step-indicators" id="stepIndicators">
+                                ${recipe.instructions.map((_, index) => 
+                                    `<div class="step-indicator" data-step="${index}"></div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        
                         <div class="timer-section">
                             <div class="timer-display" id="timerDisplay">00:00</div>
                             <div class="timer-controls">
@@ -980,6 +1090,7 @@
                     currentStep: 0,
                     totalSteps: recipe.instructions.length,
                     recipeId: id,
+                    completedSteps: new Set(),
                     timer: {
                         isRunning: false,
                         timeLeft: 0,
@@ -1011,9 +1122,29 @@
                         const stepItem = checkbox.closest('.step-item');
                         if (checkbox.checked) {
                             stepItem.classList.add('step-completed');
+                            this.cookingState.completedSteps.add(index);
                         } else {
                             stepItem.classList.remove('step-completed');
+                            this.cookingState.completedSteps.delete(index);
                         }
+                        this.updateStepIndicators();
+                    });
+                });
+
+                // Step jump select
+                document.getElementById('stepJumpSelect').addEventListener('change', (e) => {
+                    const stepIndex = parseInt(e.target.value);
+                    this.cookingState.currentStep = stepIndex;
+                    this.updateCurrentStep();
+                });
+
+                // Step indicator clicks
+                document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                    indicator.addEventListener('click', () => {
+                        this.cookingState.currentStep = index;
+                        this.updateCurrentStep();
+                        // Update the select dropdown to match
+                        document.getElementById('stepJumpSelect').value = index;
                     });
                 });
 
@@ -1077,6 +1208,33 @@
                 if (currentStepElement) {
                     currentStepElement.classList.add('step-current');
                 }
+                
+                this.updateProgress();
+                this.updateStepIndicators();
+            }
+
+            updateProgress() {
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                
+                if (!progressFill || !progressText) return;
+                
+                const percentage = ((this.cookingState.currentStep + 1) / this.cookingState.totalSteps) * 100;
+                progressFill.style.width = `${percentage}%`;
+                progressText.textContent = `Step ${this.cookingState.currentStep + 1} of ${this.cookingState.totalSteps}`;
+            }
+
+            updateStepIndicators() {
+                const indicators = document.querySelectorAll('.step-indicator');
+                indicators.forEach((indicator, index) => {
+                    indicator.classList.remove('current', 'completed');
+                    
+                    if (index === this.cookingState.currentStep) {
+                        indicator.classList.add('current');
+                    } else if (this.cookingState.completedSteps.has(index)) {
+                        indicator.classList.add('completed');
+                    }
+                });
             }
 
             nextStep() {
