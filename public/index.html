@@ -411,6 +411,83 @@
             flex-wrap: wrap;
         }
 
+        .timer-section {
+            background: var(--cream);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid var(--light-sage);
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--deep-sage);
+            text-align: center;
+            margin-bottom: 15px;
+            font-family: 'Libre Baskerville', serif;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .timer-btn {
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .timer-btn:hover {
+            background: var(--soft-brown);
+            transform: translateY(-2px);
+        }
+
+        .timer-btn.active {
+            background: var(--deep-sage);
+        }
+
+        .timer-alert {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .step-timer-btn {
+            background: var(--light-sage);
+            color: var(--deep-sage);
+            border: 1px solid var(--sage);
+            padding: 5px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .step-timer-btn:hover {
+            background: var(--sage);
+            color: white;
+        }
+
         .btn-cooking {
             background: white;
             color: var(--sage);
@@ -847,6 +924,19 @@
                     </div>
                     
                     <div class="cooking-content">
+                        <div class="timer-section">
+                            <div class="timer-display" id="timerDisplay">00:00</div>
+                            <div class="timer-controls">
+                                <button class="timer-btn" id="quickTimer5">5 min</button>
+                                <button class="timer-btn" id="quickTimer10">10 min</button>
+                                <button class="timer-btn" id="quickTimer15">15 min</button>
+                                <button class="timer-btn" id="quickTimer30">30 min</button>
+                                <button class="timer-btn" id="customTimerBtn">Custom</button>
+                                <button class="timer-btn" id="timerStopBtn" style="display: none;">Stop</button>
+                            </div>
+                            <div id="timerAlert" class="timer-alert" style="display: none;"></div>
+                        </div>
+                        
                         <div class="ingredients-section">
                             <h3>📝 Ingredients</h3>
                             <div id="ingredientsList">
@@ -868,6 +958,7 @@
                                             <input type="checkbox" class="step-checkbox" id="step-checkbox-${index}">
                                             <div class="step-text">
                                                 <strong>Step ${index + 1}:</strong> ${this.escapeHtml(instruction)}
+                                                ${this.extractStepTime(instruction) ? `<button class="step-timer-btn" data-time="${this.extractStepTime(instruction)}">Timer: ${this.extractStepTime(instruction)}min</button>` : ''}
                                             </div>
                                         </div>
                                     </div>
@@ -888,7 +979,13 @@
                 this.cookingState = {
                     currentStep: 0,
                     totalSteps: recipe.instructions.length,
-                    recipeId: id
+                    recipeId: id,
+                    timer: {
+                        isRunning: false,
+                        timeLeft: 0,
+                        intervalId: null,
+                        totalTime: 0
+                    }
                 };
                 
                 this.updateCurrentStep();
@@ -918,6 +1015,33 @@
                             stepItem.classList.remove('step-completed');
                         }
                     });
+                });
+
+                // Step timer buttons
+                document.querySelectorAll('.step-timer-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const time = parseInt(e.target.getAttribute('data-time'));
+                        this.startTimer(time);
+                    });
+                });
+
+                // Quick timer buttons
+                document.getElementById('quickTimer5').addEventListener('click', () => this.startTimer(5));
+                document.getElementById('quickTimer10').addEventListener('click', () => this.startTimer(10));
+                document.getElementById('quickTimer15').addEventListener('click', () => this.startTimer(15));
+                document.getElementById('quickTimer30').addEventListener('click', () => this.startTimer(30));
+                
+                // Custom timer button
+                document.getElementById('customTimerBtn').addEventListener('click', () => {
+                    const minutes = prompt('Enter timer duration in minutes:');
+                    if (minutes && !isNaN(minutes) && minutes > 0) {
+                        this.startTimer(parseInt(minutes));
+                    }
+                });
+                
+                // Stop timer button
+                document.getElementById('timerStopBtn').addEventListener('click', () => {
+                    this.stopTimer();
                 });
 
                 // Cooking control buttons
@@ -970,6 +1094,11 @@
             }
 
             exitCookingMode() {
+                // Stop any running timer
+                if (this.cookingState && this.cookingState.timer.isRunning) {
+                    this.stopTimer();
+                }
+                
                 const cookingMode = document.getElementById('cookingMode');
                 if (cookingMode) {
                     cookingMode.remove();
@@ -982,6 +1111,135 @@
                 }
                 
                 this.cookingState = null;
+            }
+
+            // Timer functionality
+            startTimer(minutes) {
+                if (this.cookingState.timer.isRunning) {
+                    this.stopTimer();
+                }
+                
+                const seconds = minutes * 60;
+                this.cookingState.timer.timeLeft = seconds;
+                this.cookingState.timer.totalTime = seconds;
+                this.cookingState.timer.isRunning = true;
+                
+                this.updateTimerDisplay();
+                
+                // Show stop button, hide quick timer buttons
+                document.getElementById('timerStopBtn').style.display = 'inline-block';
+                document.querySelectorAll('#quickTimer5, #quickTimer10, #quickTimer15, #quickTimer30, #customTimerBtn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                
+                this.cookingState.timer.intervalId = setInterval(() => {
+                    this.cookingState.timer.timeLeft--;
+                    this.updateTimerDisplay();
+                    
+                    if (this.cookingState.timer.timeLeft <= 0) {
+                        this.timerComplete();
+                    }
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.cookingState.timer.intervalId) {
+                    clearInterval(this.cookingState.timer.intervalId);
+                }
+                
+                this.cookingState.timer.isRunning = false;
+                this.cookingState.timer.timeLeft = 0;
+                this.cookingState.timer.intervalId = null;
+                
+                this.updateTimerDisplay();
+                
+                // Show quick timer buttons, hide stop button
+                document.getElementById('timerStopBtn').style.display = 'none';
+                document.querySelectorAll('#quickTimer5, #quickTimer10, #quickTimer15, #quickTimer30, #customTimerBtn').forEach(btn => {
+                    btn.style.display = 'inline-block';
+                });
+                
+                // Hide alert
+                document.getElementById('timerAlert').style.display = 'none';
+            }
+
+            updateTimerDisplay() {
+                const display = document.getElementById('timerDisplay');
+                if (!display) return;
+                
+                const minutes = Math.floor(this.cookingState.timer.timeLeft / 60);
+                const seconds = this.cookingState.timer.timeLeft % 60;
+                
+                display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Change color when time is running low
+                if (this.cookingState.timer.timeLeft <= 60 && this.cookingState.timer.timeLeft > 0) {
+                    display.style.color = '#ff6b6b';
+                } else {
+                    display.style.color = 'var(--deep-sage)';
+                }
+            }
+
+            timerComplete() {
+                this.stopTimer();
+                
+                // Show alert
+                const alert = document.getElementById('timerAlert');
+                alert.textContent = '⏰ Timer Complete!';
+                alert.style.display = 'block';
+                
+                // Play notification sound
+                this.playNotificationSound();
+                
+                // Auto-hide alert after 5 seconds
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 5000);
+            }
+
+            playNotificationSound() {
+                try {
+                    // Create a simple beep sound using Web Audio API
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (error) {
+                    console.log('Audio notification not available:', error);
+                }
+            }
+
+            extractStepTime(instruction) {
+                // Extract time from instruction text
+                const timePatterns = [
+                    /(\d+)\s*(?:minutes?|mins?|min)/gi,
+                    /(\d+)\s*(?:hours?|hrs?|h)/gi
+                ];
+                
+                for (const pattern of timePatterns) {
+                    const match = pattern.exec(instruction);
+                    if (match) {
+                        const time = parseInt(match[1]);
+                        // Convert hours to minutes for display
+                        if (pattern.source.includes('hour')) {
+                            return time * 60;
+                        }
+                        return time;
+                    }
+                }
+                return null;
             }
 
             deleteRecipe(id) {
