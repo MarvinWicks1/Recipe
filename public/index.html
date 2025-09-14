@@ -575,6 +575,54 @@
             transform: scale(1.1);
         }
 
+        .scaling-section {
+            background: var(--light-sage);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .scaling-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .scale-input {
+            width: 80px;
+            padding: 8px 12px;
+            border: 2px solid var(--sage);
+            border-radius: 8px;
+            background: var(--warm-white);
+            color: var(--deep-sage);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .scale-btn {
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .scale-btn:hover {
+            background: var(--soft-brown);
+            transform: translateY(-2px);
+        }
+
+        .scaled-ingredient {
+            color: var(--terracotta);
+            font-weight: 600;
+        }
+
         .btn-cooking {
             background: white;
             color: var(--sage);
@@ -1047,11 +1095,25 @@
                             <div id="timerAlert" class="timer-alert" style="display: none;"></div>
                         </div>
                         
+                        <div class="scaling-section">
+                            <h3>🔢 Scale Recipe</h3>
+                            <div class="scaling-controls">
+                                <label for="scaleFactor">Scale to:</label>
+                                <input type="number" id="scaleFactor" class="scale-input" value="1" min="0.25" max="5" step="0.25">
+                                <span>x servings</span>
+                                <button class="scale-btn" id="applyScalingBtn">Apply</button>
+                                <button class="scale-btn" id="resetScalingBtn">Reset</button>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9rem; color: var(--soft-brown);">
+                                Original recipe serves ${recipe.servings || 'unknown'} people
+                            </p>
+                        </div>
+                        
                         <div class="ingredients-section">
                             <h3>📝 Ingredients</h3>
                             <div id="ingredientsList">
                                 ${recipe.ingredients.map((ingredient, index) => `
-                                    <div class="ingredient-item">
+                                    <div class="ingredient-item" data-original="${this.escapeHtml(ingredient)}">
                                         <input type="checkbox" class="ingredient-checkbox" id="ingredient-${index}">
                                         <label for="ingredient-${index}">${this.escapeHtml(ingredient)}</label>
                                     </div>
@@ -1091,6 +1153,8 @@
                     totalSteps: recipe.instructions.length,
                     recipeId: id,
                     completedSteps: new Set(),
+                    scalingFactor: 1,
+                    originalRecipe: recipe,
                     timer: {
                         isRunning: false,
                         timeLeft: 0,
@@ -1173,6 +1237,15 @@
                 // Stop timer button
                 document.getElementById('timerStopBtn').addEventListener('click', () => {
                     this.stopTimer();
+                });
+
+                // Scaling buttons
+                document.getElementById('applyScalingBtn').addEventListener('click', () => {
+                    this.applyScaling();
+                });
+
+                document.getElementById('resetScalingBtn').addEventListener('click', () => {
+                    this.resetScaling();
                 });
 
                 // Cooking control buttons
@@ -1398,6 +1471,111 @@
                     }
                 }
                 return null;
+            }
+
+            // Scaling functionality
+            applyScaling() {
+                const scaleFactor = parseFloat(document.getElementById('scaleFactor').value);
+                if (isNaN(scaleFactor) || scaleFactor <= 0) {
+                    alert('Please enter a valid scaling factor');
+                    return;
+                }
+                
+                this.cookingState.scalingFactor = scaleFactor;
+                this.updateIngredientQuantities();
+            }
+
+            resetScaling() {
+                this.cookingState.scalingFactor = 1;
+                document.getElementById('scaleFactor').value = '1';
+                this.updateIngredientQuantities();
+            }
+
+            updateIngredientQuantities() {
+                const ingredientItems = document.querySelectorAll('.ingredient-item');
+                
+                ingredientItems.forEach((item, index) => {
+                    const originalText = item.getAttribute('data-original');
+                    const label = item.querySelector('label');
+                    
+                    if (this.cookingState.scalingFactor === 1) {
+                        label.textContent = originalText;
+                        label.classList.remove('scaled-ingredient');
+                    } else {
+                        const scaledText = this.scaleIngredient(originalText, this.cookingState.scalingFactor);
+                        label.textContent = scaledText;
+                        label.classList.add('scaled-ingredient');
+                    }
+                });
+            }
+
+            scaleIngredient(ingredient, factor) {
+                // Parse and scale quantities in ingredient strings
+                const quantityPatterns = [
+                    // Fractions
+                    /(\d+)\/(\d+)/g,
+                    // Decimals
+                    /(\d+\.?\d*)/g,
+                    // Mixed numbers (e.g., 1 1/2)
+                    /(\d+)\s+(\d+)\/(\d+)/g
+                ];
+                
+                let scaledIngredient = ingredient;
+                
+                // Handle mixed numbers first (e.g., "1 1/2 cups")
+                scaledIngredient = scaledIngredient.replace(/(\d+)\s+(\d+)\/(\d+)/g, (match, whole, num, den) => {
+                    const mixedValue = parseFloat(whole) + (parseFloat(num) / parseFloat(den));
+                    const scaledValue = mixedValue * factor;
+                    return this.formatScaledQuantity(scaledValue);
+                });
+                
+                // Handle simple fractions (e.g., "1/2 cup")
+                scaledIngredient = scaledIngredient.replace(/(\d+)\/(\d+)/g, (match, num, den) => {
+                    const fractionValue = parseFloat(num) / parseFloat(den);
+                    const scaledValue = fractionValue * factor;
+                    return this.formatScaledQuantity(scaledValue);
+                });
+                
+                // Handle whole numbers and decimals
+                scaledIngredient = scaledIngredient.replace(/(\d+\.?\d*)/g, (match) => {
+                    const numValue = parseFloat(match);
+                    if (isNaN(numValue)) return match;
+                    
+                    // Only scale if it looks like a quantity (not a year, temperature, etc.)
+                    const context = ingredient.toLowerCase();
+                    const isQuantity = context.includes('cup') || context.includes('tbsp') || context.includes('tsp') || 
+                                     context.includes('oz') || context.includes('lb') || context.includes('gram') || 
+                                     context.includes('ml') || context.includes('liter') || context.includes('piece') ||
+                                     context.includes('clove') || context.includes('slice') || context.includes('medium') ||
+                                     context.includes('large') || context.includes('small');
+                    
+                    if (isQuantity) {
+                        const scaledValue = numValue * factor;
+                        return this.formatScaledQuantity(scaledValue);
+                    }
+                    return match;
+                });
+                
+                return scaledIngredient;
+            }
+
+            formatScaledQuantity(value) {
+                // Format scaled quantities nicely
+                if (value < 0.25) {
+                    return '1/4';
+                } else if (value < 0.33) {
+                    return '1/3';
+                } else if (value < 0.5) {
+                    return '1/2';
+                } else if (value < 0.67) {
+                    return '2/3';
+                } else if (value < 0.75) {
+                    return '3/4';
+                } else if (value === Math.floor(value)) {
+                    return Math.floor(value).toString();
+                } else {
+                    return value.toFixed(2).replace(/\.?0+$/, '');
+                }
             }
 
             deleteRecipe(id) {
