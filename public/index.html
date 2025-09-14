@@ -1142,7 +1142,10 @@
             }
 
             parseRecipeText(text) {
-                const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+                // Clean and normalize the text
+                const lines = text.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line && line.length > 0);
                 
                 let title = '';
                 let ingredients = [];
@@ -1151,103 +1154,350 @@
                 let prepTime = null;
                 let cookTime = null;
                 
-                let currentSection = 'title';
-                let inIngredients = false;
-                let inInstructions = false;
+                // First pass: extract metadata and find sections
+                const metadata = this.extractMetadata(text);
+                title = metadata.title;
+                servings = metadata.servings;
+                prepTime = metadata.prepTime;
+                cookTime = metadata.cookTime;
                 
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i];
-                    const lowerLine = line.toLowerCase();
-                    
-                    // Detect title (usually first non-empty line or after "recipe:")
-                    if (currentSection === 'title' && line && !lowerLine.includes('ingredient') && !lowerLine.includes('instruction') && !lowerLine.includes('serves') && !lowerLine.includes('prep') && !lowerLine.includes('cook')) {
-                        title = line.replace(/^(recipe:|title:)/i, '').trim();
-                        currentSection = 'content';
-                        continue;
-                    }
-                    
-                    // Detect sections
-                    if (lowerLine.includes('ingredient') || lowerLine.includes('what you need')) {
-                        inIngredients = true;
-                        inInstructions = false;
-                        continue;
-                    }
-                    
-                    if (lowerLine.includes('instruction') || lowerLine.includes('method') || lowerLine.includes('directions') || lowerLine.includes('steps')) {
-                        inIngredients = false;
-                        inInstructions = true;
-                        continue;
-                    }
-                    
-                    // Extract servings
-                    const servingsMatch = line.match(/(?:serves?|makes?)\s*(\d+)/i);
-                    if (servingsMatch) {
-                        servings = parseInt(servingsMatch[1]);
-                        continue;
-                    }
-                    
-                    // Extract prep time
-                    const prepMatch = line.match(/(?:prep|preparation).*?(\d+)\s*(?:min|minutes?)/i);
-                    if (prepMatch) {
-                        prepTime = parseInt(prepMatch[1]);
-                        continue;
-                    }
-                    
-                    // Extract cook time
-                    const cookMatch = line.match(/(?:cook|bake|simmer).*?(\d+)\s*(?:min|minutes?)/i);
-                    if (cookMatch) {
-                        cookTime = parseInt(cookMatch[1]);
-                        continue;
-                    }
-                    
-                    // Collect ingredients
-                    if (inIngredients && line && !line.match(/^\d+\.?\s*$/)) {
-                        ingredients.push(line);
-                    }
-                    
-                    // Collect instructions
-                    if (inInstructions && line) {
-                        // Remove step numbers
-                        const cleanLine = line.replace(/^\d+\.?\s*/, '');
-                        if (cleanLine) {
-                            instructions.push(cleanLine);
-                        }
-                    }
+                // Find section boundaries
+                const sections = this.findSections(lines);
+                
+                // Extract ingredients
+                if (sections.ingredients) {
+                    ingredients = this.extractIngredients(lines, sections.ingredients);
+                } else {
+                    // Try to find ingredients without clear section headers
+                    ingredients = this.findIngredientsByPattern(lines);
                 }
                 
-                // If no clear sections detected, try to intelligently separate
+                // Extract instructions
+                if (sections.instructions) {
+                    instructions = this.extractInstructions(lines, sections.instructions);
+                } else {
+                    // Try to find instructions without clear section headers
+                    instructions = this.findInstructionsByPattern(lines);
+                }
+                
+                // If still no ingredients/instructions, use intelligent fallback
                 if (ingredients.length === 0 && instructions.length === 0) {
-                    let foundInstructions = false;
-                    for (let i = 0; i < lines.length; i++) {
-                        const line = lines[i];
-                        const lowerLine = line.toLowerCase();
-                        
-                        // Look for instruction keywords
-                        if (lowerLine.includes('heat') || lowerLine.includes('mix') || lowerLine.includes('add') || lowerLine.includes('cook') || lowerLine.includes('bake') || lowerLine.includes('stir') || lowerLine.includes('place') || lowerLine.includes('combine')) {
-                            foundInstructions = true;
-                        }
-                        
-                        if (foundInstructions) {
-                            instructions.push(line);
-                        } else if (line && !line.match(/^\d+\.?\s*$/)) {
-                            ingredients.push(line);
-                        }
-                    }
+                    const fallback = this.intelligentFallback(lines);
+                    ingredients = fallback.ingredients;
+                    instructions = fallback.instructions;
                 }
                 
-                // Fallback title if none found
-                if (!title) {
-                    title = 'Untitled Recipe';
-                }
+                // Clean up results
+                ingredients = this.cleanIngredients(ingredients);
+                instructions = this.cleanInstructions(instructions);
                 
                 return {
-                    title,
+                    title: title || 'Untitled Recipe',
                     ingredients: ingredients.length > 0 ? ingredients : ['No ingredients found'],
                     instructions: instructions.length > 0 ? instructions : ['No instructions found'],
                     servings,
                     prepTime,
                     cookTime
                 };
+            }
+
+            extractMetadata(text) {
+                const title = this.extractTitle(text);
+                const servings = this.extractServings(text);
+                const prepTime = this.extractPrepTime(text);
+                const cookTime = this.extractCookTime(text);
+                
+                return { title, servings, prepTime, cookTime };
+            }
+
+            extractTitle(text) {
+                const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+                
+                // Look for common title patterns
+                const titlePatterns = [
+                    /^(recipe:?\s*)?(.+)$/i,
+                    /^(.+?)\s*-\s*(?:recipe|serves|prep|ingredients)/i,
+                    /^(.+?)\s*\(/i,
+                    /^(.+?)\s*\[/i
+                ];
+                
+                for (let i = 0; i < Math.min(3, lines.length); i++) {
+                    const line = lines[i];
+                    const lowerLine = line.toLowerCase();
+                    
+                    // Skip if it looks like metadata or section headers
+                    if (lowerLine.includes('ingredients') || lowerLine.includes('instructions') || 
+                        lowerLine.includes('serves') || lowerLine.includes('prep') || 
+                        lowerLine.includes('cook') || lowerLine.includes('time') ||
+                        lowerLine.match(/^\d+/) || lowerLine.includes('minutes') ||
+                        lowerLine.includes('hours')) {
+                        continue;
+                    }
+                    
+                    // Try title patterns
+                    for (const pattern of titlePatterns) {
+                        const match = line.match(pattern);
+                        if (match && match[2] && match[2].length > 3 && match[2].length < 100) {
+                            return match[2].trim();
+                        }
+                    }
+                }
+                
+                return '';
+            }
+
+            extractServings(text) {
+                const patterns = [
+                    /(?:serves?|makes?|yields?)\s*(\d+)/gi,
+                    /(\d+)\s*(?:servings?|portions?|people)/gi,
+                    /serves?\s*(\d+)/gi,
+                    /makes?\s*(\d+)/gi
+                ];
+                
+                for (const pattern of patterns) {
+                    const match = pattern.exec(text);
+                    if (match) {
+                        return parseInt(match[1]);
+                    }
+                }
+                return null;
+            }
+
+            extractPrepTime(text) {
+                const patterns = [
+                    /(?:prep|preparation)\s*(?:time)?:?\s*(\d+)\s*(?:min|minutes?)/gi,
+                    /prep:?\s*(\d+)\s*(?:min|minutes?)/gi,
+                    /(\d+)\s*(?:min|minutes?)\s*prep/gi
+                ];
+                
+                for (const pattern of patterns) {
+                    const match = pattern.exec(text);
+                    if (match) {
+                        return parseInt(match[1]);
+                    }
+                }
+                return null;
+            }
+
+            extractCookTime(text) {
+                const patterns = [
+                    /(?:cook|bake|simmer|roast)\s*(?:time)?:?\s*(\d+)\s*(?:min|minutes?)/gi,
+                    /cook:?\s*(\d+)\s*(?:min|minutes?)/gi,
+                    /bake:?\s*(\d+)\s*(?:min|minutes?)/gi,
+                    /(\d+)\s*(?:min|minutes?)\s*(?:cook|bake|simmer)/gi
+                ];
+                
+                for (const pattern of patterns) {
+                    const match = pattern.exec(text);
+                    if (match) {
+                        return parseInt(match[1]);
+                    }
+                }
+                return null;
+            }
+
+            findSections(lines) {
+                const sections = {};
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].toLowerCase();
+                    
+                    // Ingredients section
+                    if (line.match(/^(ingredients?|what you need|you'll need|for the)/)) {
+                        sections.ingredients = i;
+                    }
+                    
+                    // Instructions section
+                    if (line.match(/^(instructions?|method|directions?|steps?|how to|procedure|preparation)/)) {
+                        sections.instructions = i;
+                    }
+                }
+                
+                return sections;
+            }
+
+            extractIngredients(lines, startIndex) {
+                const ingredients = [];
+                
+                for (let i = startIndex + 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    // Stop if we hit another section
+                    if (this.isSectionHeader(line)) {
+                        break;
+                    }
+                    
+                    // Skip empty lines
+                    if (!line) continue;
+                    
+                    // Skip lines that look like instructions
+                    if (this.looksLikeInstruction(line)) {
+                        break;
+                    }
+                    
+                    // Clean and add ingredient
+                    const cleanIngredient = this.cleanIngredientLine(line);
+                    if (cleanIngredient) {
+                        ingredients.push(cleanIngredient);
+                    }
+                }
+                
+                return ingredients;
+            }
+
+            extractInstructions(lines, startIndex) {
+                const instructions = [];
+                
+                for (let i = startIndex + 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    // Stop if we hit another section
+                    if (this.isSectionHeader(line)) {
+                        break;
+                    }
+                    
+                    // Skip empty lines
+                    if (!line) continue;
+                    
+                    // Clean and add instruction
+                    const cleanInstruction = this.cleanInstructionLine(line);
+                    if (cleanInstruction) {
+                        instructions.push(cleanInstruction);
+                    }
+                }
+                
+                return instructions;
+            }
+
+            findIngredientsByPattern(lines) {
+                const ingredients = [];
+                let foundInstructions = false;
+                
+                for (const line of lines) {
+                    if (this.looksLikeInstruction(line)) {
+                        foundInstructions = true;
+                        continue;
+                    }
+                    
+                    if (!foundInstructions && this.looksLikeIngredient(line)) {
+                        const cleanIngredient = this.cleanIngredientLine(line);
+                        if (cleanIngredient) {
+                            ingredients.push(cleanIngredient);
+                        }
+                    }
+                }
+                
+                return ingredients;
+            }
+
+            findInstructionsByPattern(lines) {
+                const instructions = [];
+                let foundInstructions = false;
+                
+                for (const line of lines) {
+                    if (this.looksLikeInstruction(line)) {
+                        foundInstructions = true;
+                    }
+                    
+                    if (foundInstructions) {
+                        const cleanInstruction = this.cleanInstructionLine(line);
+                        if (cleanInstruction) {
+                            instructions.push(cleanInstruction);
+                        }
+                    }
+                }
+                
+                return instructions;
+            }
+
+            intelligentFallback(lines) {
+                const ingredients = [];
+                const instructions = [];
+                let foundInstructions = false;
+                
+                for (const line of lines) {
+                    if (this.looksLikeInstruction(line)) {
+                        foundInstructions = true;
+                    }
+                    
+                    if (foundInstructions) {
+                        const cleanInstruction = this.cleanInstructionLine(line);
+                        if (cleanInstruction) {
+                            instructions.push(cleanInstruction);
+                        }
+                    } else if (this.looksLikeIngredient(line)) {
+                        const cleanIngredient = this.cleanIngredientLine(line);
+                        if (cleanIngredient) {
+                            ingredients.push(cleanIngredient);
+                        }
+                    }
+                }
+                
+                return { ingredients, instructions };
+            }
+
+            isSectionHeader(line) {
+                const lowerLine = line.toLowerCase();
+                return lowerLine.match(/^(ingredients?|instructions?|method|directions?|steps?|what you need|you'll need|for the|how to|procedure|preparation|serves?|makes?|prep|cook|bake)/);
+            }
+
+            looksLikeIngredient(line) {
+                const lowerLine = line.toLowerCase();
+                
+                // Skip obvious non-ingredients
+                if (lowerLine.match(/^(ingredients?|instructions?|method|directions?|steps?|serves?|makes?|prep|cook|bake|heat|mix|add|stir|place|combine|preheat|oven|pan|skillet|bowl|plate)/)) {
+                    return false;
+                }
+                
+                // Look for ingredient patterns
+                const ingredientPatterns = [
+                    /\d+\s*(?:cups?|tablespoons?|teaspoons?|tbsp|tsp|oz|ounces?|pounds?|lbs?|grams?|g|ml|liters?|l)/i,
+                    /\d+\s*(?:small|medium|large|whole|half|quarter)\s+\w+/i,
+                    /\d+\s+\w+/i,
+                    /^\w+\s+(?:cup|tablespoon|teaspoon|tbsp|tsp|oz|ounce|pound|lb|gram|g|ml|liter|l)/i,
+                    /^\w+\s+(?:small|medium|large|whole|half|quarter)/i
+                ];
+                
+                return ingredientPatterns.some(pattern => pattern.test(line));
+            }
+
+            looksLikeInstruction(line) {
+                const lowerLine = line.toLowerCase();
+                
+                const instructionKeywords = [
+                    'heat', 'preheat', 'mix', 'add', 'cook', 'bake', 'simmer', 'boil', 'fry', 'sauté',
+                    'stir', 'place', 'combine', 'blend', 'whisk', 'beat', 'fold', 'pour', 'spread',
+                    'sprinkle', 'season', 'taste', 'serve', 'garnish', 'decorate', 'arrange',
+                    'remove', 'drain', 'rinse', 'wash', 'peel', 'chop', 'slice', 'dice', 'mince',
+                    'grate', 'shred', 'crush', 'mash', 'squeeze', 'zest', 'juice', 'melt',
+                    'cool', 'warm', 'chill', 'refrigerate', 'freeze', 'thaw', 'rest', 'stand'
+                ];
+                
+                return instructionKeywords.some(keyword => lowerLine.includes(keyword));
+            }
+
+            cleanIngredientLine(line) {
+                // Remove bullet points, numbers, and common prefixes
+                return line.replace(/^[\s\-\*\•\d+\.\)\]]+\s*/, '').trim();
+            }
+
+            cleanInstructionLine(line) {
+                // Remove step numbers and bullet points
+                return line.replace(/^[\s\-\*\•\d+\.\)\]]+\s*/, '').trim();
+            }
+
+            cleanIngredients(ingredients) {
+                return ingredients
+                    .filter(ingredient => ingredient && ingredient.length > 0)
+                    .map(ingredient => this.cleanIngredientLine(ingredient))
+                    .filter(ingredient => ingredient.length > 0);
+            }
+
+            cleanInstructions(instructions) {
+                return instructions
+                    .filter(instruction => instruction && instruction.length > 0)
+                    .map(instruction => this.cleanInstructionLine(instruction))
+                    .filter(instruction => instruction.length > 0);
             }
 
             escapeHtml(text) {
