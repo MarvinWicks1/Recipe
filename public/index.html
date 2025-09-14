@@ -541,39 +541,58 @@
         <!-- Add Recipe Section -->
         <div id="add-recipe" class="section">
             <h2>Add New Recipe</h2>
-            <form id="recipeForm">
-                <div class="form-group">
-                    <label for="recipeTitle">Recipe Title</label>
-                    <input type="text" id="recipeTitle" required>
-                </div>
+            
+            <!-- Add Method Toggle -->
+            <div style="margin-bottom: 20px; text-align: center;">
+                <button id="structuredBtn" class="btn active" style="margin-right: 10px;">Structured Form</button>
+                <button id="quickAddBtn" class="btn">Quick Add (Paste Recipe)</button>
+            </div>
 
-                <div class="form-group">
-                    <label for="recipeIngredients">Ingredients (one per line)</label>
-                    <textarea id="recipeIngredients" placeholder="2 cups flour&#10;1 cup sugar&#10;3 eggs&#10;..." required></textarea>
-                </div>
+            <!-- Structured Form -->
+            <div id="structuredForm">
+                <form id="recipeForm">
+                    <div class="form-group">
+                        <label for="recipeTitle">Recipe Title</label>
+                        <input type="text" id="recipeTitle" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="recipeInstructions">Instructions (one step per line)</label>
-                    <textarea id="recipeInstructions" placeholder="Preheat oven to 350°F&#10;Mix dry ingredients&#10;Add wet ingredients&#10;..." required></textarea>
-                </div>
+                    <div class="form-group">
+                        <label for="recipeIngredients">Ingredients (one per line)</label>
+                        <textarea id="recipeIngredients" placeholder="2 cups flour&#10;1 cup sugar&#10;3 eggs&#10;..." required></textarea>
+                    </div>
 
-                <div class="form-group">
-                    <label for="recipeServings">Servings</label>
-                    <input type="number" id="recipeServings" min="1" placeholder="4">
-                </div>
+                    <div class="form-group">
+                        <label for="recipeInstructions">Instructions (one step per line)</label>
+                        <textarea id="recipeInstructions" placeholder="Preheat oven to 350°F&#10;Mix dry ingredients&#10;Add wet ingredients&#10;..." required></textarea>
+                    </div>
 
-                <div class="form-group">
-                    <label for="recipePrepTime">Prep Time (minutes)</label>
-                    <input type="number" id="recipePrepTime" min="0" placeholder="15">
-                </div>
+                    <div class="form-group">
+                        <label for="recipeServings">Servings</label>
+                        <input type="number" id="recipeServings" min="1" placeholder="4">
+                    </div>
 
-                <div class="form-group">
-                    <label for="recipeCookTime">Cook Time (minutes)</label>
-                    <input type="number" id="recipeCookTime" min="0" placeholder="30">
-                </div>
+                    <div class="form-group">
+                        <label for="recipePrepTime">Prep Time (minutes)</label>
+                        <input type="number" id="recipePrepTime" min="0" placeholder="15">
+                    </div>
 
-                <button type="submit" class="btn">Add Recipe</button>
-            </form>
+                    <div class="form-group">
+                        <label for="recipeCookTime">Cook Time (minutes)</label>
+                        <input type="number" id="recipeCookTime" min="0" placeholder="30">
+                    </div>
+
+                    <button type="submit" class="btn">Add Recipe</button>
+                </form>
+            </div>
+
+            <!-- Quick Add Form -->
+            <div id="quickAddForm" style="display: none;">
+                <div class="form-group">
+                    <label for="quickRecipeText">Paste your complete recipe here:</label>
+                    <textarea id="quickRecipeText" placeholder="Paste your recipe here... The app will automatically organize ingredients, instructions, and extract cooking times and servings." style="min-height: 300px;"></textarea>
+                </div>
+                <button id="parseRecipeBtn" class="btn">Parse & Add Recipe</button>
+            </div>
         </div>
 
         <!-- Cupboard Section -->
@@ -1095,6 +1114,142 @@
                 localStorage.setItem('recipe-keeper-cupboard-v2', JSON.stringify(this.cupboard));
             }
 
+            parseAndAddRecipe() {
+                const recipeText = document.getElementById('quickRecipeText').value.trim();
+                if (!recipeText) {
+                    alert('Please paste a recipe first!');
+                    return;
+                }
+
+                try {
+                    const parsed = this.parseRecipeText(recipeText);
+                    
+                    // Populate the structured form with parsed data
+                    document.getElementById('recipeTitle').value = parsed.title;
+                    document.getElementById('recipeIngredients').value = parsed.ingredients.join('\n');
+                    document.getElementById('recipeInstructions').value = parsed.instructions.join('\n');
+                    if (parsed.servings) document.getElementById('recipeServings').value = parsed.servings;
+                    if (parsed.prepTime) document.getElementById('recipePrepTime').value = parsed.prepTime;
+                    if (parsed.cookTime) document.getElementById('recipeCookTime').value = parsed.cookTime;
+                    
+                    // Switch to structured form to show the parsed data
+                    document.getElementById('structuredBtn').click();
+                    
+                    alert('Recipe parsed successfully! Review and click "Add Recipe" to save.');
+                } catch (error) {
+                    alert('Error parsing recipe: ' + error.message);
+                }
+            }
+
+            parseRecipeText(text) {
+                const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+                
+                let title = '';
+                let ingredients = [];
+                let instructions = [];
+                let servings = null;
+                let prepTime = null;
+                let cookTime = null;
+                
+                let currentSection = 'title';
+                let inIngredients = false;
+                let inInstructions = false;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    const lowerLine = line.toLowerCase();
+                    
+                    // Detect title (usually first non-empty line or after "recipe:")
+                    if (currentSection === 'title' && line && !lowerLine.includes('ingredient') && !lowerLine.includes('instruction') && !lowerLine.includes('serves') && !lowerLine.includes('prep') && !lowerLine.includes('cook')) {
+                        title = line.replace(/^(recipe:|title:)/i, '').trim();
+                        currentSection = 'content';
+                        continue;
+                    }
+                    
+                    // Detect sections
+                    if (lowerLine.includes('ingredient') || lowerLine.includes('what you need')) {
+                        inIngredients = true;
+                        inInstructions = false;
+                        continue;
+                    }
+                    
+                    if (lowerLine.includes('instruction') || lowerLine.includes('method') || lowerLine.includes('directions') || lowerLine.includes('steps')) {
+                        inIngredients = false;
+                        inInstructions = true;
+                        continue;
+                    }
+                    
+                    // Extract servings
+                    const servingsMatch = line.match(/(?:serves?|makes?)\s*(\d+)/i);
+                    if (servingsMatch) {
+                        servings = parseInt(servingsMatch[1]);
+                        continue;
+                    }
+                    
+                    // Extract prep time
+                    const prepMatch = line.match(/(?:prep|preparation).*?(\d+)\s*(?:min|minutes?)/i);
+                    if (prepMatch) {
+                        prepTime = parseInt(prepMatch[1]);
+                        continue;
+                    }
+                    
+                    // Extract cook time
+                    const cookMatch = line.match(/(?:cook|bake|simmer).*?(\d+)\s*(?:min|minutes?)/i);
+                    if (cookMatch) {
+                        cookTime = parseInt(cookMatch[1]);
+                        continue;
+                    }
+                    
+                    // Collect ingredients
+                    if (inIngredients && line && !line.match(/^\d+\.?\s*$/)) {
+                        ingredients.push(line);
+                    }
+                    
+                    // Collect instructions
+                    if (inInstructions && line) {
+                        // Remove step numbers
+                        const cleanLine = line.replace(/^\d+\.?\s*/, '');
+                        if (cleanLine) {
+                            instructions.push(cleanLine);
+                        }
+                    }
+                }
+                
+                // If no clear sections detected, try to intelligently separate
+                if (ingredients.length === 0 && instructions.length === 0) {
+                    let foundInstructions = false;
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i];
+                        const lowerLine = line.toLowerCase();
+                        
+                        // Look for instruction keywords
+                        if (lowerLine.includes('heat') || lowerLine.includes('mix') || lowerLine.includes('add') || lowerLine.includes('cook') || lowerLine.includes('bake') || lowerLine.includes('stir') || lowerLine.includes('place') || lowerLine.includes('combine')) {
+                            foundInstructions = true;
+                        }
+                        
+                        if (foundInstructions) {
+                            instructions.push(line);
+                        } else if (line && !line.match(/^\d+\.?\s*$/)) {
+                            ingredients.push(line);
+                        }
+                    }
+                }
+                
+                // Fallback title if none found
+                if (!title) {
+                    title = 'Untitled Recipe';
+                }
+                
+                return {
+                    title,
+                    ingredients: ingredients.length > 0 ? ingredients : ['No ingredients found'],
+                    instructions: instructions.length > 0 ? instructions : ['No instructions found'],
+                    servings,
+                    prepTime,
+                    cookTime
+                };
+            }
+
             escapeHtml(text) {
                 const div = document.createElement('div');
                 div.textContent = text;
@@ -1205,6 +1360,36 @@
             if (importFile) {
                 importFile.addEventListener('change', function() {
                     if (recipeKeeper) recipeKeeper.importRecipes();
+                });
+            }
+            
+            // Add method toggle buttons
+            const structuredBtn = document.getElementById('structuredBtn');
+            const quickAddBtn = document.getElementById('quickAddBtn');
+            const structuredForm = document.getElementById('structuredForm');
+            const quickAddForm = document.getElementById('quickAddForm');
+            
+            if (structuredBtn && quickAddBtn) {
+                structuredBtn.addEventListener('click', function() {
+                    structuredBtn.classList.add('active');
+                    quickAddBtn.classList.remove('active');
+                    structuredForm.style.display = 'block';
+                    quickAddForm.style.display = 'none';
+                });
+                
+                quickAddBtn.addEventListener('click', function() {
+                    quickAddBtn.classList.add('active');
+                    structuredBtn.classList.remove('active');
+                    structuredForm.style.display = 'none';
+                    quickAddForm.style.display = 'block';
+                });
+            }
+            
+            // Parse recipe button
+            const parseRecipeBtn = document.getElementById('parseRecipeBtn');
+            if (parseRecipeBtn) {
+                parseRecipeBtn.addEventListener('click', function() {
+                    if (recipeKeeper) recipeKeeper.parseAndAddRecipe();
                 });
             }
         });
