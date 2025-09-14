@@ -326,12 +326,16 @@
             left: 0;
             width: 100%;
             height: 100vh;
+            height: 100dvh; /* Dynamic viewport height for mobile */
             background: var(--warm-white);
             z-index: 2000;
             overflow: hidden;
             font-size: 1.2rem;
             display: flex;
             flex-direction: column;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .cooking-header {
@@ -342,11 +346,24 @@
             z-index: 2001;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
+            position: sticky;
+            top: 0;
         }
 
         .cooking-header h2 {
             margin: 0;
             font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .cooking-header {
+                padding: 12px 15px;
+            }
+            
+            .cooking-header h2 {
+                font-size: 1.3rem;
+            }
         }
 
         .cooking-content {
@@ -428,6 +445,13 @@
             flex-wrap: wrap;
             flex-shrink: 0;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .cooking-controls {
+                padding: 12px;
+                gap: 8px;
+            }
         }
 
         .timer-section {
@@ -727,6 +751,15 @@
             padding: 15px 20px;
             flex-shrink: 0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .top-controls-bar {
+                padding: 12px 15px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
         }
 
         .progress-section {
@@ -795,10 +828,21 @@
             font-size: 0.8rem;
             font-weight: 600;
             transition: all 0.3s ease;
+            min-height: 36px;
+            touch-action: manipulation;
         }
 
         .timer-btn-small:hover {
             background: var(--soft-brown);
+        }
+
+        @media (max-width: 768px) {
+            .timer-btn-small {
+                padding: 10px 14px;
+                font-size: 1rem;
+                min-height: 40px;
+                min-width: 44px; /* Minimum touch target size */
+            }
         }
 
         /* Ingredients Section Full Page */
@@ -811,9 +855,30 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        @media (max-width: 768px) {
+            .ingredients-section-full {
+                padding: 15px;
+            }
+        }
+
         .section-title {
             text-align: center;
             margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                margin-bottom: 20px;
+            }
+            
+            .section-title h2 {
+                font-size: 1.4rem;
+                margin-bottom: 8px;
+            }
+            
+            .section-title p {
+                font-size: 1rem;
+            }
         }
 
         .section-title h2 {
@@ -852,6 +917,15 @@
             touch-action: manipulation;
         }
 
+        @media (max-width: 768px) {
+            .ingredient-item-full {
+                padding: 18px 16px;
+                font-size: 1.1rem;
+                min-height: 70px;
+                border-radius: 12px;
+            }
+        }
+
         .ingredient-item-full:hover {
             background: var(--light-sage);
             transform: translateY(-2px);
@@ -863,6 +937,15 @@
             transform: scale(1.5);
             min-width: 20px;
             min-height: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .ingredient-item-full input[type="checkbox"] {
+                margin-right: 16px;
+                transform: scale(1.8);
+                min-width: 24px;
+                min-height: 24px;
+            }
         }
 
         .ingredient-text {
@@ -893,6 +976,13 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        @media (max-width: 768px) {
+            .cooking-steps-section {
+                padding: 15px;
+                padding-bottom: 100px;
+            }
+        }
+
         .current-step-full {
             background: var(--sage);
             color: white;
@@ -906,11 +996,25 @@
             box-shadow: 0 8px 30px rgba(156, 175, 136, 0.3);
         }
 
+        @media (max-width: 768px) {
+            .current-step-full {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+        }
+
         .step-number-full {
             font-size: 5rem;
             font-weight: bold;
             margin-bottom: 20px;
             font-family: 'Libre Baskerville', serif;
+        }
+
+        @media (max-width: 768px) {
+            .step-number-full {
+                font-size: 4rem;
+                margin-bottom: 15px;
+            }
         }
 
         .step-instruction-full {
@@ -928,6 +1032,16 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        @media (max-width: 768px) {
+            .step-instruction-full {
+                font-size: 1.4rem;
+                line-height: 1.5;
+                margin-bottom: 20px;
+                padding: 12px;
+                max-height: 45vh;
+            }
+        }
+
         .step-timer-full {
             background: var(--terracotta);
             color: white;
@@ -938,6 +1052,17 @@
             font-weight: 600;
             font-size: 1.1rem;
             transition: all 0.3s ease;
+            min-height: 50px;
+            touch-action: manipulation;
+        }
+
+        @media (max-width: 768px) {
+            .step-timer-full {
+                padding: 18px 30px;
+                font-size: 1.3rem;
+                min-height: 56px;
+                min-width: 120px;
+            }
         }
 
         .step-timer-full:hover {
@@ -1144,6 +1269,19 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+
+        @media (max-width: 768px) {
+            .btn-cooking {
+                padding: 16px 20px;
+                font-size: 1.1rem;
+                min-height: 56px;
+                min-width: 100px;
+                flex: 1;
+                max-width: 120px;
+            }
         }
 
         .btn-cooking:hover {
@@ -1738,6 +1876,9 @@
                         this.exitCookingMode();
                     });
                 }
+
+                // Add swipe gesture support for mobile
+                this.addSwipeGestures();
             }
 
             updateCurrentStep() {
@@ -1823,6 +1964,43 @@
                     document.getElementById('progressText').textContent = 'Ingredients Check';
                     this.updateProgress();
                 }
+            }
+
+            addSwipeGestures() {
+                let startX = 0;
+                let startY = 0;
+                const cookingMode = document.getElementById('cookingMode');
+                
+                if (!cookingMode) return;
+                
+                cookingMode.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                }, { passive: true });
+                
+                cookingMode.addEventListener('touchend', (e) => {
+                    if (!startX || !startY) return;
+                    
+                    const endX = e.changedTouches[0].clientX;
+                    const endY = e.changedTouches[0].clientY;
+                    
+                    const diffX = startX - endX;
+                    const diffY = startY - endY;
+                    
+                    // Only trigger if horizontal swipe is more significant than vertical
+                    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                        if (diffX > 0) {
+                            // Swipe left - next step
+                            this.nextStep();
+                        } else {
+                            // Swipe right - previous step
+                            this.previousStep();
+                        }
+                    }
+                    
+                    startX = 0;
+                    startY = 0;
+                }, { passive: true });
             }
 
             exitCookingMode() {
