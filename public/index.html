@@ -338,33 +338,6 @@
             user-select: none;
         }
 
-        .cooking-header {
-            background: var(--sage);
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            z-index: 2001;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0;
-            position: sticky;
-            top: 0;
-        }
-
-        .cooking-header h2 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-            .cooking-header {
-                padding: 12px 15px;
-            }
-            
-            .cooking-header h2 {
-                font-size: 1.3rem;
-            }
-        }
 
         .cooking-content {
             padding: 20px;
@@ -443,14 +416,16 @@
             gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
-            flex-shrink: 0;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            border-radius: 15px;
         }
 
         @media (max-width: 768px) {
             .cooking-controls {
                 padding: 12px;
                 gap: 8px;
+                margin-top: 15px;
+                border-radius: 12px;
             }
         }
 
@@ -764,6 +739,23 @@
 
         .progress-section {
             flex: 1;
+        }
+
+        .recipe-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: 768px) {
+            .recipe-title {
+                font-size: 1rem;
+                margin-bottom: 3px;
+            }
         }
 
         .timer-section {
@@ -1704,14 +1696,11 @@
                 cookingMode.id = 'cookingMode';
                 
                 cookingMode.innerHTML = `
-                    <div class="cooking-header">
-                        <h2>👨‍🍳 Cooking: ${this.escapeHtml(recipe.title)}</h2>
-                    </div>
-                    
                     <div class="cooking-content single-view">
-                        <!-- Progress and timer bar -->
+                        <!-- Progress and timer bar with title -->
                         <div class="top-controls-bar">
                             <div class="progress-section">
+                                <div class="recipe-title">👨‍🍳 ${this.escapeHtml(recipe.title)}</div>
                                 <div class="step-counter" id="progressText">Ingredients Check</div>
                                 <div class="progress-bar-small">
                                     <div class="progress-fill-small" id="progressFill"></div>
