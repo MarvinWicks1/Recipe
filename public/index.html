@@ -2816,20 +2816,27 @@
                     sections = this.findSectionsByContent(lines);
                 }
                 
-                // Extract ingredients
-                if (sections.ingredients !== undefined) {
-                    ingredients = this.extractIngredients(lines, sections.ingredients);
+                // If still no sections found, use intelligent parsing
+                if (!sections.ingredients && !sections.instructions) {
+                    const fallback = this.intelligentFallback(lines);
+                    ingredients = fallback.ingredients;
+                    instructions = fallback.instructions;
                 } else {
-                    // Try to find ingredients without clear section headers
-                    ingredients = this.findIngredientsByPattern(lines);
-                }
-                
-                // Extract instructions
-                if (sections.instructions !== undefined) {
-                    instructions = this.extractInstructions(lines, sections.instructions);
-                } else {
-                    // Try to find instructions without clear section headers
-                    instructions = this.findInstructionsByPattern(lines);
+                    // Extract ingredients
+                    if (sections.ingredients !== undefined) {
+                        ingredients = this.extractIngredients(lines, sections.ingredients);
+                    } else {
+                        // Try to find ingredients without clear section headers
+                        ingredients = this.findIngredientsByPattern(lines);
+                    }
+                    
+                    // Extract instructions
+                    if (sections.instructions !== undefined) {
+                        instructions = this.extractInstructions(lines, sections.instructions);
+                    } else {
+                        // Try to find instructions without clear section headers
+                        instructions = this.findInstructionsByPattern(lines);
+                    }
                 }
                 
                 // If still no ingredients/instructions, use intelligent fallback
@@ -3048,32 +3055,45 @@
                     }
                 }
                 
+                // If we found ingredients but no instructions, look for the first numbered instruction
+                if (foundIngredients && !foundInstructions) {
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (line.match(/^\d+\.\s+[A-Z]/)) {
+                            sections.instructions = i;
+                            break;
+                        }
+                    }
+                }
+                
                 return sections;
             }
 
             extractIngredients(lines, startIndex) {
                 const ingredients = [];
                 
-                for (let i = startIndex + 1; i < lines.length; i++) {
+                for (let i = startIndex; i < lines.length; i++) {
                     const line = lines[i].trim();
                     
-                    // Stop if we hit another section
-                    if (this.isSectionHeader(line)) {
+                    // Stop if we hit another section (but not on the first line)
+                    if (i > startIndex && this.isSectionHeader(line)) {
                         break;
                     }
                     
                     // Skip empty lines
                     if (!line) continue;
                     
-                    // Skip lines that look like instructions
-                    if (this.looksLikeInstruction(line)) {
+                    // Skip lines that clearly look like instructions (numbered steps)
+                    if (line.match(/^\d+\.\s+[A-Z]/)) {
                         break;
                     }
                     
-                    // Clean and add ingredient
-                    const cleanIngredient = this.cleanIngredientLine(line);
-                    if (cleanIngredient) {
-                        ingredients.push(cleanIngredient);
+                    // Check if this line looks like an ingredient
+                    if (this.looksLikeIngredient(line) || line.match(/^[•\-\*]\s*/)) {
+                        const cleanIngredient = this.cleanIngredientLine(line);
+                        if (cleanIngredient) {
+                            ingredients.push(cleanIngredient);
+                        }
                     }
                 }
                 
@@ -3083,21 +3103,23 @@
             extractInstructions(lines, startIndex) {
                 const instructions = [];
                 
-                for (let i = startIndex + 1; i < lines.length; i++) {
+                for (let i = startIndex; i < lines.length; i++) {
                     const line = lines[i].trim();
                     
-                    // Stop if we hit another section
-                    if (this.isSectionHeader(line)) {
+                    // Stop if we hit another section (but not on the first line)
+                    if (i > startIndex && this.isSectionHeader(line)) {
                         break;
                     }
                     
                     // Skip empty lines
                     if (!line) continue;
                     
-                    // Clean and add instruction
-                    const cleanInstruction = this.cleanInstructionLine(line);
-                    if (cleanInstruction) {
-                        instructions.push(cleanInstruction);
+                    // Look for numbered instructions or instruction-like content
+                    if (line.match(/^\d+\.\s+[A-Z]/) || this.looksLikeInstruction(line)) {
+                        const cleanInstruction = this.cleanInstructionLine(line);
+                        if (cleanInstruction) {
+                            instructions.push(cleanInstruction);
+                        }
                     }
                 }
                 
@@ -3151,16 +3173,24 @@
                 let foundInstructions = false;
                 
                 for (const line of lines) {
-                    if (this.looksLikeInstruction(line)) {
+                    // Check for numbered instructions first
+                    if (line.match(/^\d+\.\s+[A-Z]/)) {
                         foundInstructions = true;
-                    }
-                    
-                    if (foundInstructions) {
                         const cleanInstruction = this.cleanInstructionLine(line);
                         if (cleanInstruction) {
                             instructions.push(cleanInstruction);
                         }
-                    } else if (this.looksLikeIngredient(line)) {
+                    }
+                    // Check for instruction keywords
+                    else if (this.looksLikeInstruction(line)) {
+                        foundInstructions = true;
+                        const cleanInstruction = this.cleanInstructionLine(line);
+                        if (cleanInstruction) {
+                            instructions.push(cleanInstruction);
+                        }
+                    }
+                    // Check for ingredients (bullet points or ingredient patterns)
+                    else if (this.looksLikeIngredient(line) || line.match(/^[•\-\*]\s*/)) {
                         const cleanIngredient = this.cleanIngredientLine(line);
                         if (cleanIngredient) {
                             ingredients.push(cleanIngredient);
