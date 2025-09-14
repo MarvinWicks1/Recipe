@@ -771,12 +771,15 @@
                             ${recipe.category.map(cat => `<span class="category-tag">${cat}</span>`).join('')}
                         </div>
                         <div class="recipe-actions">
-                            <button class="btn btn-small" onclick="recipeKeeper.viewRecipe('${recipe.id}')">View</button>
-                            <button class="btn btn-small btn-secondary" onclick="recipeKeeper.startCooking('${recipe.id}')">Start Cook</button>
-                            <button class="btn btn-small" onclick="recipeKeeper.deleteRecipe('${recipe.id}')">Delete</button>
+                            <button class="btn btn-small recipe-view-btn" data-recipe-id="${recipe.id}">View</button>
+                            <button class="btn btn-small btn-secondary recipe-cook-btn" data-recipe-id="${recipe.id}">Start Cook</button>
+                            <button class="btn btn-small recipe-delete-btn" data-recipe-id="${recipe.id}">Delete</button>
                         </div>
                     </div>
                 `).join('');
+                
+                // Add event listeners to recipe card buttons
+                this.addRecipeCardEventListeners();
             }
 
             viewRecipe(id) {
@@ -1498,6 +1501,32 @@
                     .filter(instruction => instruction && instruction.length > 0)
                     .map(instruction => this.cleanInstructionLine(instruction))
                     .filter(instruction => instruction.length > 0);
+            }
+
+            addRecipeCardEventListeners() {
+                // View buttons
+                document.querySelectorAll('.recipe-view-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const recipeId = e.target.getAttribute('data-recipe-id');
+                        this.viewRecipe(recipeId);
+                    });
+                });
+                
+                // Start Cook buttons
+                document.querySelectorAll('.recipe-cook-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const recipeId = e.target.getAttribute('data-recipe-id');
+                        this.startCooking(recipeId);
+                    });
+                });
+                
+                // Delete buttons
+                document.querySelectorAll('.recipe-delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const recipeId = e.target.getAttribute('data-recipe-id');
+                        this.deleteRecipe(recipeId);
+                    });
+                });
             }
 
             escapeHtml(text) {
