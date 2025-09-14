@@ -581,6 +581,129 @@
             transform: scale(1.1);
         }
 
+        /* Simplified UI Styles */
+        .simple-progress {
+            background: var(--light-sage);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .current-step-display {
+            background: var(--sage);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(156, 175, 136, 0.3);
+        }
+
+        .step-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-family: 'Libre Baskerville', serif;
+        }
+
+        .current-step-display .step-text {
+            font-size: 1.4rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .simple-timer {
+            background: var(--cream);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid var(--light-sage);
+        }
+
+        .simple-timer .timer-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--deep-sage);
+            margin-bottom: 15px;
+            font-family: 'Libre Baskerville', serif;
+        }
+
+        .simple-timer .timer-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .simple-timer .timer-btn {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+
+        .simple-ingredients {
+            background: var(--warm-white);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--light-sage);
+        }
+
+        .simple-ingredients h3 {
+            margin-bottom: 15px;
+            color: var(--deep-sage);
+            text-align: center;
+        }
+
+        .all-steps {
+            background: var(--warm-white);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--light-sage);
+        }
+
+        .toggle-steps-btn {
+            width: 100%;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .toggle-steps-btn:hover {
+            background: var(--soft-brown);
+            transform: translateY(-2px);
+        }
+
+        .steps-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .steps-list .step-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-sage);
+            transition: all 0.3s ease;
+        }
+
+        .steps-list .step-item.current {
+            background: var(--light-sage);
+            border-radius: 8px;
+            margin: 5px 0;
+        }
+
+        .steps-list .step-item:last-child {
+            border-bottom: none;
+        }
+
         .scaling-section {
             background: var(--light-sage);
             padding: 15px;
@@ -1065,57 +1188,37 @@
                     </div>
                     
                     <div class="cooking-content">
-                        <div class="progress-section">
+                        <!-- Simple progress indicator -->
+                        <div class="simple-progress">
+                            <div class="progress-text" id="progressText">Step 1 of ${recipe.instructions.length}</div>
                             <div class="progress-bar">
                                 <div class="progress-fill" id="progressFill"></div>
                             </div>
-                            <div class="progress-text" id="progressText">Step 1 of ${recipe.instructions.length}</div>
                         </div>
                         
-                        <div class="step-navigation">
-                            <div class="step-jump">
-                                <label for="stepJumpSelect">Jump to:</label>
-                                <select id="stepJumpSelect">
-                                    ${recipe.instructions.map((_, index) => 
-                                        `<option value="${index}">Step ${index + 1}</option>`
-                                    ).join('')}
-                                </select>
-                            </div>
-                            <div class="step-indicators" id="stepIndicators">
-                                ${recipe.instructions.map((_, index) => 
-                                    `<div class="step-indicator" data-step="${index}"></div>`
-                                ).join('')}
-                            </div>
+                        <!-- Current step display -->
+                        <div class="current-step-display" id="currentStepDisplay">
+                            <div class="step-number">1</div>
+                            <div class="step-text">${this.escapeHtml(recipe.instructions[0])}</div>
+                            ${this.extractStepTime(recipe.instructions[0]) ? `<button class="step-timer-btn" data-time="${this.extractStepTime(recipe.instructions[0])}">⏰ ${this.extractStepTime(recipe.instructions[0])} min</button>` : ''}
                         </div>
                         
-                        <div class="timer-section">
+                        <!-- Timer section - simplified -->
+                        <div class="simple-timer">
                             <div class="timer-display" id="timerDisplay">00:00</div>
                             <div class="timer-controls">
-                                <button class="timer-btn" id="quickTimer5">5 min</button>
-                                <button class="timer-btn" id="quickTimer10">10 min</button>
-                                <button class="timer-btn" id="quickTimer15">15 min</button>
-                                <button class="timer-btn" id="quickTimer30">30 min</button>
+                                <button class="timer-btn" id="quickTimer5">5m</button>
+                                <button class="timer-btn" id="quickTimer10">10m</button>
+                                <button class="timer-btn" id="quickTimer15">15m</button>
+                                <button class="timer-btn" id="quickTimer30">30m</button>
                                 <button class="timer-btn" id="customTimerBtn">Custom</button>
                                 <button class="timer-btn" id="timerStopBtn" style="display: none;">Stop</button>
                             </div>
                             <div id="timerAlert" class="timer-alert" style="display: none;"></div>
                         </div>
                         
-                        <div class="scaling-section">
-                            <h3>🔢 Scale Recipe</h3>
-                            <div class="scaling-controls">
-                                <label for="scaleFactor">Scale to:</label>
-                                <input type="number" id="scaleFactor" class="scale-input" value="1" min="0.25" max="5" step="0.25">
-                                <span>x servings</span>
-                                <button class="scale-btn" id="applyScalingBtn">Apply</button>
-                                <button class="scale-btn" id="resetScalingBtn">Reset</button>
-                            </div>
-                            <p style="margin-top: 10px; font-size: 0.9rem; color: var(--soft-brown);">
-                                Original recipe serves ${recipe.servings || 'unknown'} people
-                            </p>
-                        </div>
-                        
-                        <div class="ingredients-section">
+                        <!-- Ingredients checklist - simplified -->
+                        <div class="simple-ingredients">
                             <h3>📝 Ingredients</h3>
                             <div id="ingredientsList">
                                 ${recipe.ingredients.map((ingredient, index) => `
@@ -1127,16 +1230,16 @@
                             </div>
                         </div>
                         
-                        <div class="instructions-section">
-                            <h3>👨‍🍳 Instructions</h3>
-                            <div id="instructionsList">
+                        <!-- All steps - collapsible -->
+                        <div class="all-steps">
+                            <button class="toggle-steps-btn" id="toggleStepsBtn">👀 View All Steps</button>
+                            <div class="steps-list" id="stepsList" style="display: none;">
                                 ${recipe.instructions.map((instruction, index) => `
-                                    <div class="step-item" id="step-${index}">
+                                    <div class="step-item ${index === 0 ? 'current' : ''}" id="step-${index}">
                                         <div class="step-content">
                                             <input type="checkbox" class="step-checkbox" id="step-checkbox-${index}">
                                             <div class="step-text">
                                                 <strong>Step ${index + 1}:</strong> ${this.escapeHtml(instruction)}
-                                                ${this.extractStepTime(instruction) ? `<button class="step-timer-btn" data-time="${this.extractStepTime(instruction)}">Timer: ${this.extractStepTime(instruction)}min</button>` : ''}
                                             </div>
                                         </div>
                                     </div>
@@ -1189,8 +1292,8 @@
                     });
                 });
 
-                // Step checkboxes
-                document.querySelectorAll('.step-checkbox').forEach((checkbox, index) => {
+                // Step checkboxes in all-steps list
+                document.querySelectorAll('#stepsList .step-checkbox').forEach((checkbox, index) => {
                     checkbox.addEventListener('change', () => {
                         const stepItem = checkbox.closest('.step-item');
                         if (checkbox.checked) {
@@ -1200,24 +1303,22 @@
                             stepItem.classList.remove('step-completed');
                             this.cookingState.completedSteps.delete(index);
                         }
-                        this.updateStepIndicators();
                     });
                 });
 
-                // Step jump select
-                document.getElementById('stepJumpSelect').addEventListener('change', (e) => {
-                    const stepIndex = parseInt(e.target.value);
-                    this.cookingState.currentStep = stepIndex;
-                    this.updateCurrentStep();
+                // Toggle all steps button
+                document.getElementById('toggleStepsBtn').addEventListener('click', () => {
+                    this.toggleAllSteps();
                 });
 
-                // Step indicator clicks
-                document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
-                    indicator.addEventListener('click', () => {
-                        this.cookingState.currentStep = index;
-                        this.updateCurrentStep();
-                        // Update the select dropdown to match
-                        document.getElementById('stepJumpSelect').value = index;
+                // Click on step in all-steps list to jump to it
+                document.querySelectorAll('#stepsList .step-item').forEach((stepItem, index) => {
+                    stepItem.addEventListener('click', (e) => {
+                        // Don't trigger if clicking on checkbox
+                        if (e.target.type !== 'checkbox') {
+                            this.cookingState.currentStep = index;
+                            this.updateCurrentStep();
+                        }
                     });
                 });
 
@@ -1282,32 +1383,37 @@
             }
 
             updateCurrentStep() {
-                document.querySelectorAll('.step-item').forEach(step => {
-                    step.classList.remove('step-current');
-                });
+                // Update the large current step display
+                const currentStepDisplay = document.getElementById('currentStepDisplay');
+                const recipe = this.cookingState.originalRecipe;
+                const currentInstruction = recipe.instructions[this.cookingState.currentStep];
                 
-                const currentStepElement = document.getElementById(`step-${this.cookingState.currentStep}`);
-                if (currentStepElement) {
-                    currentStepElement.classList.add('step-current');
+                if (currentStepDisplay) {
+                    currentStepDisplay.innerHTML = `
+                        <div class="step-number">${this.cookingState.currentStep + 1}</div>
+                        <div class="step-text">${this.escapeHtml(currentInstruction)}</div>
+                        ${this.extractStepTime(currentInstruction) ? `<button class="step-timer-btn" data-time="${this.extractStepTime(currentInstruction)}">⏰ ${this.extractStepTime(currentInstruction)} min</button>` : ''}
+                    `;
                     
-                    // Smooth scroll to current step with offset for fixed controls
-                    setTimeout(() => {
-                        const elementTop = currentStepElement.offsetTop;
-                        const elementHeight = currentStepElement.offsetHeight;
-                        const viewportHeight = window.innerHeight;
-                        const controlsHeight = 80; // Approximate height of fixed controls
-                        
-                        const scrollTo = elementTop - (viewportHeight / 2) + (elementHeight / 2) + controlsHeight;
-                        
-                        document.querySelector('.cooking-mode').scrollTo({
-                            top: Math.max(0, scrollTo),
-                            behavior: 'smooth'
+                    // Re-attach timer button event listener
+                    const timerBtn = currentStepDisplay.querySelector('.step-timer-btn');
+                    if (timerBtn) {
+                        timerBtn.addEventListener('click', (e) => {
+                            const time = parseInt(e.target.getAttribute('data-time'));
+                            this.startTimer(time);
                         });
-                    }, 100);
+                    }
                 }
                 
+                // Update the all-steps list
+                document.querySelectorAll('#stepsList .step-item').forEach((step, index) => {
+                    step.classList.remove('current');
+                    if (index === this.cookingState.currentStep) {
+                        step.classList.add('current');
+                    }
+                });
+                
                 this.updateProgress();
-                this.updateStepIndicators();
             }
 
             updateProgress() {
@@ -1321,17 +1427,17 @@
                 progressText.textContent = `Step ${this.cookingState.currentStep + 1} of ${this.cookingState.totalSteps}`;
             }
 
-            updateStepIndicators() {
-                const indicators = document.querySelectorAll('.step-indicator');
-                indicators.forEach((indicator, index) => {
-                    indicator.classList.remove('current', 'completed');
-                    
-                    if (index === this.cookingState.currentStep) {
-                        indicator.classList.add('current');
-                    } else if (this.cookingState.completedSteps.has(index)) {
-                        indicator.classList.add('completed');
-                    }
-                });
+            toggleAllSteps() {
+                const stepsList = document.getElementById('stepsList');
+                const toggleBtn = document.getElementById('toggleStepsBtn');
+                
+                if (stepsList.style.display === 'none') {
+                    stepsList.style.display = 'block';
+                    toggleBtn.textContent = '👀 Hide All Steps';
+                } else {
+                    stepsList.style.display = 'none';
+                    toggleBtn.textContent = '👀 View All Steps';
+                }
             }
 
             nextStep() {
