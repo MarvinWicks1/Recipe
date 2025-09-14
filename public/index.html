@@ -328,10 +328,10 @@
             height: 100vh;
             background: var(--warm-white);
             z-index: 2000;
-            overflow-y: auto;
-            overflow-x: hidden;
+            overflow: hidden;
             font-size: 1.2rem;
-            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
         }
 
         .cooking-header {
@@ -339,10 +339,9 @@
             color: white;
             padding: 15px 20px;
             text-align: center;
-            position: sticky;
-            top: 0;
             z-index: 2001;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
         }
 
         .cooking-header h2 {
@@ -360,13 +359,14 @@
 
         .cooking-content.single-view {
             padding: 0;
-            padding-bottom: 100px;
-            height: calc(100vh - 80px);
+            flex: 1;
             display: flex;
             flex-direction: column;
             max-width: none;
             margin: 0;
             background: var(--warm-white);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .ingredient-item {
@@ -420,17 +420,13 @@
         }
 
         .cooking-controls {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
             background: var(--sage);
             padding: 15px;
             display: flex;
             gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
-            z-index: 2002;
+            flex-shrink: 0;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
         }
 
@@ -1601,15 +1597,19 @@
                         
                         <!-- Timer alert -->
                         <div id="timerAlert" class="timer-alert-full" style="display: none;"></div>
-                    </div>
-                    
-                    <div class="cooking-controls">
-                        <button class="btn-cooking" id="cookingPreviousBtn">⬅️ Previous</button>
-                        <button class="btn-cooking" id="cookingNextBtn">Next ➡️</button>
-                        <button class="btn-cooking" id="cookingExitBtn">❌ Exit</button>
+                        
+                        <!-- Cooking controls -->
+                        <div class="cooking-controls">
+                            <button class="btn-cooking" id="cookingPreviousBtn">⬅️ Previous</button>
+                            <button class="btn-cooking" id="cookingNextBtn">Next ➡️</button>
+                            <button class="btn-cooking" id="cookingExitBtn">❌ Exit</button>
+                        </div>
                     </div>
                 `;
 
+                // Hide main page content
+                document.querySelector('.container').style.display = 'none';
+                
                 document.body.appendChild(cookingMode);
                 
                 this.cookingState = {
@@ -1814,6 +1814,9 @@
                 if (cookingMode) {
                     cookingMode.remove();
                 }
+                
+                // Show main page content again
+                document.querySelector('.container').style.display = 'block';
                 
                 if (navigator.wakeLock) {
                     navigator.wakeLock.release().catch(err => {
