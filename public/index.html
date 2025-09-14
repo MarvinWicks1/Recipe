@@ -520,6 +520,7 @@
         <div class="header">
             <h1>🍳 Recipe Keeper v2</h1>
             <p>Your personal recipe collection</p>
+            <button onclick="alert('JavaScript is working!')" style="margin-top: 10px; padding: 5px 10px; background: var(--terracotta); color: white; border: none; border-radius: 5px;">Test JavaScript</button>
         </div>
 
         <div class="main-nav">
@@ -1129,7 +1130,19 @@
 
         // Initialize app when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            recipeKeeper = new RecipeKeeper();
+            console.log('DOM loaded, initializing RecipeKeeper...');
+            try {
+                recipeKeeper = new RecipeKeeper();
+                console.log('RecipeKeeper initialized successfully');
+            } catch (error) {
+                console.error('Error initializing RecipeKeeper:', error);
+            }
+        });
+
+        // Add debugging for button clicks
+        window.addEventListener('load', function() {
+            console.log('Page fully loaded');
+            console.log('recipeKeeper instance:', recipeKeeper);
         });
     </script>
 </body>
