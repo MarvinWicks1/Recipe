@@ -877,9 +877,9 @@
                     </div>
                     
                     <div class="cooking-controls">
-                        <button class="btn-cooking" onclick="recipeKeeper.previousStep()">⬅️ Previous</button>
-                        <button class="btn-cooking" onclick="recipeKeeper.nextStep()">Next ➡️</button>
-                        <button class="btn-cooking" onclick="recipeKeeper.exitCookingMode()">❌ Exit</button>
+                        <button class="btn-cooking" id="cookingPreviousBtn">⬅️ Previous</button>
+                        <button class="btn-cooking" id="cookingNextBtn">Next ➡️</button>
+                        <button class="btn-cooking" id="cookingExitBtn">❌ Exit</button>
                     </div>
                 `;
 
@@ -919,6 +919,29 @@
                         }
                     });
                 });
+
+                // Cooking control buttons
+                const previousBtn = document.getElementById('cookingPreviousBtn');
+                const nextBtn = document.getElementById('cookingNextBtn');
+                const exitBtn = document.getElementById('cookingExitBtn');
+
+                if (previousBtn) {
+                    previousBtn.addEventListener('click', () => {
+                        this.previousStep();
+                    });
+                }
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        this.nextStep();
+                    });
+                }
+
+                if (exitBtn) {
+                    exitBtn.addEventListener('click', () => {
+                        this.exitCookingMode();
+                    });
+                }
             }
 
             updateCurrentStep() {
@@ -999,6 +1022,18 @@
                             <label for="shopping-${index}">${this.escapeHtml(item)}</label>
                         </div>
                     `).join('');
+                    
+                    // Add event listeners for shopping checkboxes
+                    document.querySelectorAll('.shopping-checkbox').forEach(checkbox => {
+                        checkbox.addEventListener('change', (e) => {
+                            const label = e.target.nextElementSibling;
+                            if (e.target.checked) {
+                                label.classList.add('shopping-checked');
+                            } else {
+                                label.classList.remove('shopping-checked');
+                            }
+                        });
+                    });
                 }
 
                 shoppingListDiv.style.display = 'block';
@@ -1028,7 +1063,7 @@
                     <div class="cupboard-item">
                         <input type="checkbox" class="cupboard-checkbox" id="cupboard-${item.id}" ${item.checked ? 'checked' : ''}>
                         <label for="cupboard-${item.id}">${this.escapeHtml(item.name)}</label>
-                        <button class="btn btn-small" onclick="recipeKeeper.removeCupboardItem('${item.id}')" style="margin-left: auto;">Remove</button>
+                        <button class="btn btn-small cupboard-remove-btn" data-item-id="${item.id}" style="margin-left: auto;">Remove</button>
                     </div>
                 `).join('');
 
@@ -1041,6 +1076,14 @@
                             item.checked = e.target.checked;
                             this.saveCupboard();
                         }
+                    });
+                });
+
+                // Add event listeners for remove buttons
+                document.querySelectorAll('.cupboard-remove-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const itemId = e.target.getAttribute('data-item-id');
+                        this.removeCupboardItem(itemId);
                     });
                 });
             }
