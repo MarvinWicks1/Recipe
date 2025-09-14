@@ -526,11 +526,11 @@
         </div>
 
         <div class="main-nav">
-            <button class="nav-btn active" onclick="showSection('recipes')">My Recipes</button>
-            <button class="nav-btn" onclick="showSection('add-recipe')">Add Recipe</button>
-            <button class="nav-btn" onclick="showSection('cupboard')">My Cupboard</button>
-            <button class="nav-btn" onclick="showSection('shopping')">Shopping List</button>
-            <button class="nav-btn" onclick="showSection('export-import')">Export/Import</button>
+            <button class="nav-btn active" data-section="recipes">My Recipes</button>
+            <button class="nav-btn" data-section="add-recipe">Add Recipe</button>
+            <button class="nav-btn" data-section="cupboard">My Cupboard</button>
+            <button class="nav-btn" data-section="shopping">Shopping List</button>
+            <button class="nav-btn" data-section="export-import">Export/Import</button>
         </div>
 
         <!-- Recipes Section -->
@@ -1209,6 +1209,23 @@
             } else {
                 showDebug('❌ Test Button 2 not found');
             }
+            
+            // Add event listeners to main navigation buttons
+            const navButtons = document.querySelectorAll('.nav-btn');
+            showDebug('Found ' + navButtons.length + ' navigation buttons');
+            
+            navButtons.forEach(function(button, index) {
+                const section = button.getAttribute('data-section');
+                if (section) {
+                    button.addEventListener('click', function() {
+                        showDebug('✅ Nav button clicked: ' + section);
+                        showSection(section);
+                    });
+                    showDebug('✅ Added event listener for: ' + section);
+                } else {
+                    showDebug('❌ No data-section attribute for button ' + index);
+                }
+            });
         });
     </script>
 </body>
