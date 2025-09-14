@@ -520,8 +520,8 @@
         <div class="header">
             <h1>🍳 Recipe Keeper v2</h1>
             <p>Your personal recipe collection</p>
-            <button onclick="alert('JavaScript is working!')" style="margin-top: 10px; padding: 5px 10px; background: var(--terracotta); color: white; border: none; border-radius: 5px;">Test JavaScript</button>
-            <button onclick="showSection('add-recipe')" style="margin-top: 5px; padding: 5px 10px; background: var(--sage); color: white; border: none; border-radius: 5px;">Test Navigation</button>
+            <button onclick="showDebug('Button clicked!')" style="margin-top: 10px; padding: 5px 10px; background: var(--terracotta); color: white; border: none; border-radius: 5px;">Test Button Click</button>
+            <button onclick="showDebug('Navigation test clicked!'); showSection('add-recipe');" style="margin-top: 5px; padding: 5px 10px; background: var(--sage); color: white; border: none; border-radius: 5px;">Test Navigation</button>
             <div id="debugInfo" style="margin-top: 10px; padding: 10px; background: var(--light-sage); border-radius: 5px; font-size: 0.9rem;"></div>
         </div>
 
@@ -1155,6 +1155,17 @@
             console.log(message);
         }
 
+        // Global error handler
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            showDebug('❌ JavaScript Error: ' + msg + ' at line ' + lineNo);
+            return false;
+        };
+
+        // Catch unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(event) {
+            showDebug('❌ Unhandled Promise Rejection: ' + event.reason);
+        });
+
         // Initialize app when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             showDebug('DOM loaded, initializing RecipeKeeper...');
@@ -1170,6 +1181,11 @@
         window.addEventListener('load', function() {
             showDebug('Page fully loaded');
             showDebug('recipeKeeper instance: ' + (recipeKeeper ? 'Ready' : 'Not ready'));
+            
+            // Test if showDebug function works
+            setTimeout(function() {
+                showDebug('Testing showDebug function...');
+            }, 1000);
         });
     </script>
 </body>
