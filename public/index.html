@@ -3223,8 +3223,8 @@
                 const ingredientPatterns = [
                     // Measurements
                     /\d+\s*(?:cups?|tablespoons?|teaspoons?|tbsp|tsp|oz|ounces?|pounds?|lbs?|grams?|g|ml|liters?|l)/i,
-                    // Fractions with measurements
-                    /\d+\/\d+\s*(?:cup|tablespoon|teaspoon|tbsp|tsp)/i,
+                    // Fractions with measurements (1/2 cup, 1/4 tsp, etc.)
+                    /\d+\/\d+\s*(?:cup|tablespoon|teaspoon|tbsp|tsp|oz|ounce|pound|lb|gram|g|ml|liter|l)/i,
                     // Quantities with descriptors
                     /\d+\s*(?:small|medium|large|whole|half|quarter|boneless|skinless|cloves?|pieces?|slices?)\s+\w+/i,
                     // Simple quantities
@@ -3232,7 +3232,9 @@
                     // Food items
                     /(?:salt|pepper|garlic|onion|butter|oil|flour|sugar|eggs?|milk|cream|cheese|bread|rice|pasta|meat|chicken|beef|pork|fish|vegetables?|herbs?|spices?|spinach|tomatoes?|basil|parmesan|broth|breasts?|thighs?)/i,
                     // Common ingredients
-                    /(?:fresh|dried|chopped|minced|grated|sliced|diced|crushed|optional|to taste)/
+                    /(?:fresh|dried|chopped|minced|grated|sliced|diced|crushed|optional|to taste)/,
+                    // Bullet points (likely ingredients)
+                    /^[•\-\*]\s*/
                 ];
                 
                 return ingredientPatterns.some(pattern => pattern.test(line));
@@ -3261,8 +3263,8 @@
             }
 
             cleanIngredientLine(line) {
-                // Remove bullet points, numbers, and common prefixes
-                let cleaned = line.replace(/^[\s\-\*\•\d+\.\)\]]+\s*/, '').trim();
+                // Remove bullet points and common prefixes, but preserve measurements
+                let cleaned = line.replace(/^[\s\-\*\•]+\s*/, '').trim();
                 
                 // Remove common prefixes
                 cleaned = cleaned.replace(/^(for|for the|for this recipe|you'll need|you need|get|buy|purchase|obtain)\s*/i, '');
@@ -3279,8 +3281,9 @@
             }
 
             cleanInstructionLine(line) {
-                // Remove step numbers and bullet points
-                let cleaned = line.replace(/^[\s\-\*\•\d+\.\)\]]+\s*/, '').trim();
+                // Remove step numbers and bullet points (but preserve fractions in ingredients)
+                let cleaned = line.replace(/^\d+\.\s*/, '').trim();
+                cleaned = cleaned.replace(/^[\s\-\*\•]+\s*/, '').trim();
                 
                 // Clean up extra whitespace
                 cleaned = cleaned.replace(/\s+/g, ' ').trim();
